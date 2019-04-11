@@ -5,29 +5,23 @@ import { TrackSegment } from '../Components/TrackSegment';
 import { gameSettings } from '../config/GameSettings';
 import { SegmentPoint } from '../Components/SegmentPoint';
 import { Util } from '../Components/Util';
+import { Player } from '../Components/Player';
 
 export class GameScene extends BaseScene {
 	public segments: TrackSegment[];
 	public trackLength: number;
-	public playerX: number;
-	public playerZ: number;
+
 	public position: number;
 	public speed: number;
+	public player: Player;
 
-	public speedText: Phaser.GameObjects.Text;
+	public speedText: Phaser.GameObjects.BitmapText;
 	public roadGraphics: Phaser.GameObjects.Graphics;
 
 	public cursors: Input.Keyboard.CursorKeys;
 
 	constructor(key: string, options: any) {
 		super('GameScene');
-
-		this.segments = [];
-		this.trackLength = 0;
-		this.playerX = 0;
-		this.playerZ = gameSettings.cameraHeight * gameSettings.cameraDepth;
-		this.position = 0;
-		this.speed = 0;
 	}
 
 	// public preload(): void {
@@ -39,11 +33,18 @@ export class GameScene extends BaseScene {
 	// }
 
 	public create(): void {
-		this.cursors = this.input.keyboard.createCursorKeys();
-		this.roadGraphics = this.add.graphics();
-		this.resetRoad();
+		this.segments = [];
+		this.trackLength = 0;
+		this.position = 0;
+		this.speed = 0;
 
-		this.speedText = this.add.text(5, 5, 'speed: 0\nposition: 0');
+		this.cursors = this.input.keyboard.createCursorKeys();
+
+		this.roadGraphics = this.add.graphics();
+		this.player = new Player(this, 0, this.scale.gameSize.height - 5, gameSettings.cameraHeight * gameSettings.cameraDepth);
+		this.speedText = this.add.bitmapText(5, 5, 'retro', 'speed: 0\nposition: 0', 16);
+
+		this.resetRoad();
 	}
 
 	public update(time: number, delta: number): void {
@@ -52,7 +53,12 @@ export class GameScene extends BaseScene {
 
 		this.handleInput(delta / 100);
 		this.speed = Phaser.Math.Clamp(this.speed, 0, gameSettings.maxSpeed);
+		this.player.x = Phaser.Math.Clamp(this.player.x, -2, 2);
 
+		// TODO: offroad
+
+
+		// track position
 		this.position = Util.increase(this.position, (delta * 0.01) * this.speed, this.trackLength);
 
 		this.drawRoad();
@@ -128,11 +134,11 @@ export class GameScene extends BaseScene {
 			segment.looped = segment.index < baseSegment.index;
 			segment.fog = 0; // TODO: Util.exponentialFog(n/drawDistance, fogDensity);
 
-			this.project(segment.p1, this.playerX * gameSettings.roadWidth, gameSettings.cameraHeight,
+			this.project(segment.p1, this.player.x * gameSettings.roadWidth, gameSettings.cameraHeight,
 					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
 					gameWidth, gameHeight, gameSettings.roadWidth);
 
-			this.project(segment.p2, this.playerX * gameSettings.roadWidth, gameSettings.cameraHeight,
+			this.project(segment.p2, this.player.x * gameSettings.roadWidth, gameSettings.cameraHeight,
 					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
 					gameWidth, gameHeight, gameSettings.roadWidth);
 
@@ -178,6 +184,17 @@ export class GameScene extends BaseScene {
 			this.speed = Util.accelerate(this.speed, gameSettings.breaking, delta);
 		} else {
 			this.speed = Util.accelerate(this.speed, gameSettings.decel, delta);
+		}
+
+		const speedMultiplier = this.speed / gameSettings.maxSpeed;
+		const dx = this.speed <= 0 ? 0 : delta * speedMultiplier * 0.5;
+
+		if (this.cursors.left.isDown) {
+			this.player.x -= dx;
+		}
+
+		if (this.cursors.right.isDown) {
+			this.player.x += dx;
 		}
 	}
 }
