@@ -1,0 +1,14 @@
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+#game-container {
+	margin: 0;
+	padding: 0;
+	max-height: 100vh;
+}

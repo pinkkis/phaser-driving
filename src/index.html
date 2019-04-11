@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=2.0"
+		/>
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Game Template</title>
+		<script>
+			window.env = {
+				buildType: '<%= htmlWebpackPlugin.options.buildType %>',
+				version: '<%= htmlWebpackPlugin.options.version %>',
+			};
+		</script>
+	</head>
+
+	<body>
+		<div id="game-container"></div>
+	</body>
+</html>

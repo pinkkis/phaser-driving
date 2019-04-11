@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist/",
+		"noImplicitAny": true,
+		"module": "esnext",
+		"target": "esnext",
+		"allowJs": true,
+		"sourceMap": true
+	},
+	"exclude": [
+		"node_modules",
+		".vscode"
+	  ]
+}
