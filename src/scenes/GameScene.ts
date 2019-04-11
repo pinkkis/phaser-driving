@@ -25,14 +25,6 @@ export class GameScene extends BaseScene {
 		super('GameScene');
 	}
 
-	// public preload(): void {
-	// 	// empty
-	// }
-
-	// public init(): void {
-	// 	// empty
-	// }
-
 	public create(): void {
 		this.segments = [];
 		this.trackLength = 0;
@@ -51,12 +43,14 @@ export class GameScene extends BaseScene {
 	public update(time: number, delta: number): void {
 		// empty
 		this.roadGraphics.clear();
-		const playerSegment = this.findSegment(this.position + this.player.z);
+		const playerSegment = this.findSegmentByZ(this.position + this.player.z);
+		const playerPercent = Util.percentRemaining(this.position + this.player.z, gameSettings.segmentLength);
 		const speedMultiplier = this.speed / gameSettings.maxSpeed;
 		const dx = this.speed <= 0 ? 0 : delta * 0.01 * speedMultiplier;
 
 		this.handleInput(delta, dx);
 
+		this.player.y = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
 		this.player.x = this.player.x - (dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal);
 
 		this.speed = Phaser.Math.Clamp(this.speed, 0, gameSettings.maxSpeed);
@@ -69,7 +63,7 @@ export class GameScene extends BaseScene {
 
 		this.drawRoad();
 
-		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}\ncurve: ${playerSegment.curve.toFixed(2)}`);
+		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}\ncurve: ${playerSegment.curve.toFixed(2)}\nplayer y: ${this.player.y.toFixed(2)}`);
 	}
 
 	// private
@@ -79,9 +73,9 @@ export class GameScene extends BaseScene {
 		sp.camera.y = (sp.world.y || 0) - cameraY;
 		sp.camera.z = (sp.world.z || 0) - cameraZ;
 		sp.screen.scale = cameraDepth / sp.camera.z;
-		sp.screen.x = Math.round((width / 2) + (sp.screen.scale * sp.camera.x * width / 2));
-		sp.screen.y = Math.round((height / 2) - (sp.screen.scale * sp.camera.y * height / 2));
-		sp.screen.w = Math.round((sp.screen.scale * roadWidth * width / 2));
+		sp.screen.x = Math.round( (width / 2) + (sp.screen.scale * sp.camera.x * width / 2) );
+		sp.screen.y = Math.round( (height / 2) - (sp.screen.scale * sp.camera.y * height / 2) );
+		sp.screen.w = Math.round( (sp.screen.scale * roadWidth * width / 2) );
 	}
 
 	private drawPolygon(g: Phaser.GameObjects.Graphics, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, color: number) {
@@ -129,7 +123,7 @@ export class GameScene extends BaseScene {
 		const gameWidth = this.scale.gameSize.width;
 		const gameHeight = this.scale.gameSize.height;
 
-		const baseSegment = this.findSegment(this.position);
+		const baseSegment = this.findSegmentByZ(this.position);
 		const basePercent = Util.percentRemaining(this.position, gameSettings.segmentLength);
 
 		let maxY = gameHeight;
@@ -141,20 +135,19 @@ export class GameScene extends BaseScene {
 			const segment = this.segments[segmentIndex];
 
 			segment.looped = segment.index < baseSegment.index;
-			segment.fog = 0; // TODO: Util.exponentialFog(n/drawDistance, fogDensity);
 
-			this.project(segment.p1, this.player.x * gameSettings.roadWidth - x, gameSettings.cameraHeight,
+			this.project(segment.p1, this.player.x * gameSettings.roadWidth - x, this.player.y + gameSettings.cameraHeight,
 				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
 				gameWidth, gameHeight, gameSettings.roadWidth);
 
-			this.project(segment.p2, this.player.x * gameSettings.roadWidth - x - dx, gameSettings.cameraHeight,
+			this.project(segment.p2, this.player.x * gameSettings.roadWidth - x - dx, this.player.y + gameSettings.cameraHeight,
 				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
 				gameWidth, gameHeight, gameSettings.roadWidth);
 
 			x = x + dx;
 			dx = dx + segment.curve;
 
-			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY) {
+			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY || segment.p2.screen.y >= segment.p1.screen.y) {
 				continue;
 			}
 
@@ -173,35 +166,50 @@ export class GameScene extends BaseScene {
 		}
 	}
 
-	private addRoadSegment(curve: number): void {
-		this.segments.push( new TrackSegment(this.segments.length, curve) );
+	private addRoadSegment(curve: number, y: number): void {
+		this.segments.push( new TrackSegment(this.segments.length, curve, y, this.getLastSegmentYPos()) );
 	}
 
 	private addStraight(num: number = ROAD.LENGTH.MEDIUM): void {
-		this.addRoad(num, num, num, 0);
+		this.addRoad(num, num, num, 0, 0);
 	}
 
-	private addCurve(num: number = ROAD.LENGTH.MEDIUM, curve: number = ROAD.CURVE.MEDIUM): void {
-		this.addRoad(num, num, num, curve);
+	private addCurve(num: number = ROAD.LENGTH.MEDIUM, curve: number = ROAD.CURVE.MEDIUM, height: number = 0): void {
+		this.addRoad(num, num, num, curve, height);
 	}
 
-	private addRoad(enter: number, hold: number, leave: number, curve: number): void {
-		let n;
+	private addHill(num: number = ROAD.LENGTH.MEDIUM, height: number = 0): void {
+		this.addRoad(num, num, num, 0, height);
+	}
 
-		for (n = 0; n < enter; n++) {
-			this.addRoadSegment(Util.easeIn(0, curve, n / enter));
+	private addRoad(enter: number, hold: number, leave: number, curve: number, y: number): void {
+		const startY = this.getLastSegmentYPos();
+		const endY = startY + Util.toInt(y, 0) * gameSettings.segmentLength;
+		const totalLength = enter + hold + leave;
+
+		for (let n = 0; n < enter; n++) {
+			this.addRoadSegment(Util.easeIn(0, curve, n / enter), Util.easeInOut(startY, endY, n / totalLength));
 		}
 
-		for (n = 0; n < hold; n++) {
-			this.addRoadSegment(curve);
+		for (let n = 0; n < hold; n++) {
+			this.addRoadSegment(curve, Util.easeInOut(startY, endY, (enter + n) / totalLength));
 		}
 
-		for (n = 0; n < leave; n++) {
-			this.addRoadSegment(Util.easeInOut(curve, 0, n / leave));
+		for (let n = 0; n < leave; n++) {
+			this.addRoadSegment(Util.easeInOut(curve, 0, n / leave), Util.easeInOut(startY, endY, (enter + hold + n) / totalLength));
 		}
 	}
 
-	private findSegment(z: number): TrackSegment {
+	private getLastSegmentYPos(): number {
+		const lastSegment = this.getLastSegment();
+		return lastSegment ? lastSegment.p2.world.y : 0;
+	}
+
+	private getLastSegment(): TrackSegment {
+		return this.segments.length > 0 ? this.segments[this.segments.length - 1] : null;
+	}
+
+	private findSegmentByZ(z: number): TrackSegment {
 		const index = Math.floor(z / gameSettings.segmentLength) % this.segments.length;
 		return this.segments[index];
 	}
@@ -210,14 +218,18 @@ export class GameScene extends BaseScene {
 		this.segments = [];
 
 		this.addStraight(ROAD.LENGTH.SHORT / 4);
-		this.addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM);
-		this.addStraight();
+		this.addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM, ROAD.HILL.LOW);
+		this.addHill(ROAD.LENGTH.LONG, ROAD.HILL.MEDIUM);
 		this.addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM);
+		this.addHill(ROAD.LENGTH.SHORT, -ROAD.HILL.MEDIUM);
+		this.addHill(ROAD.LENGTH.MEDIUM, ROAD.HILL.MEDIUM);
 		this.addStraight();
 		this.addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM);
 		this.addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM);
 		this.addStraight();
 		this.addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.EASY);
+
+		this.addRoad(100, 100, 100, -ROAD.CURVE.EASY, this.getLastSegmentYPos() / gameSettings.segmentLength);
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
 	}

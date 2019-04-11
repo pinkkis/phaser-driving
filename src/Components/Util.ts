@@ -23,6 +23,10 @@ export class Util {
 		return current + (accel * delta);
 	}
 
+	public static interpolate(a: number, b: number, percent: number): number {
+		return a + (b - a) * percent;
+	}
+
 	public static easeIn(a: number, b: number, percent: number): number {
 		return a + (b - a) * Math.pow(percent, 2);
 	}

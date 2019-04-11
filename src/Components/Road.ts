@@ -11,4 +11,10 @@ export const ROAD = {
 		MEDIUM: 4,
 		HARD: 6,
 	},
+	HILL: {
+		NONE: 0,
+		LOW: 20,
+		MEDIUM: 40,
+		HIGH: 60,
+	}
 };
