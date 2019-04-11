@@ -7,6 +7,22 @@ export class Util {
 		return projectedRoadWidth / Math.max(32, 8 * lanes);
 	}
 
+	public static increase(start: number, increment: number, max: number): number { // with looping
+		let result = start + increment;
+		while (result >= max) {
+			result -= max;
+		}
+
+		while (result < 0) {
+			result += max;
+		}
+		return result;
+	}
+
+	public static accelerate(current: number, accel: number, delta: number): number {
+		return current + (accel * delta);
+	}
+
 	public static easeIn(a: number, b: number, percent: number): number {
 		return a + (b - a) * Math.pow(percent, 2);
 	}

@@ -14,6 +14,7 @@ export class GameScene extends BaseScene {
 	public position: number;
 	public speed: number;
 
+	public speedText: Phaser.GameObjects.Text;
 	public roadGraphics: Phaser.GameObjects.Graphics;
 
 	public cursors: Input.Keyboard.CursorKeys;
@@ -24,31 +25,39 @@ export class GameScene extends BaseScene {
 		this.segments = [];
 		this.trackLength = 0;
 		this.playerX = 0;
-		this.playerZ = null;
+		this.playerZ = gameSettings.cameraHeight * gameSettings.cameraDepth;
 		this.position = 0;
 		this.speed = 0;
 	}
 
-	public preload(): void {
-		// empty
-	}
+	// public preload(): void {
+	// 	// empty
+	// }
 
-	public init(): void {
-		// empty
-	}
+	// public init(): void {
+	// 	// empty
+	// }
 
 	public create(): void {
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.roadGraphics = this.add.graphics();
 		this.resetRoad();
+
+		this.speedText = this.add.text(5, 5, 'speed: 0\nposition: 0');
 	}
 
 	public update(time: number, delta: number): void {
 		// empty
 		this.roadGraphics.clear();
 
-		this.handleInput();
+		this.handleInput(delta / 100);
+		this.speed = Phaser.Math.Clamp(this.speed, 0, gameSettings.maxSpeed);
+
+		this.position = Util.increase(this.position, (delta * 0.01) * this.speed, this.trackLength);
+
 		this.drawRoad();
+
+		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}`);
 	}
 
 	// private
@@ -76,27 +85,29 @@ export class GameScene extends BaseScene {
 			.restore();
 	}
 
-	private drawSegment(width: number, lanes: number, x1: number, y1: number, w1: number, x2: number, y2: number, w2: number, fog: number, color: number) {
+	private drawSegment(width: number, lanes: number, x1: number, y1: number, w1: number, x2: number, y2: number, w2: number, fog: number, colors: any) {
 		const r1 = Util.rumbleWidth(w1, lanes);
 		const r2 = Util.rumbleWidth(w2, lanes);
 		const l1 = Util.laneMarkerWidth(w1, lanes);
 		const l2 = Util.laneMarkerWidth(w1, lanes);
 
-		this.roadGraphics.fillStyle(Colors.GRASS.color);
+		this.roadGraphics.fillStyle(colors.GRASS);
 		const h = y1 - y2;
 		this.roadGraphics.fillRect(0, y2, width, h);
 
-		this.drawPolygon(this.roadGraphics, x1 - w1 - r1, y1, x1 - w1, y1, x2 - w2, y2, x2 - w2 - r2, y2, Colors.RUMBLE_DARK.color);
-		this.drawPolygon(this.roadGraphics, x1 + w1 + r1, y1, x1 + w1, y1, x2 + w2, y2, x2 + w2 + r2, y2, Colors.RUMBLE_DARK.color);
-		this.drawPolygon(this.roadGraphics, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, Colors.ROAD_DARK.color);
+		this.drawPolygon(this.roadGraphics, x1 - w1 - r1, y1, x1 - w1, y1, x2 - w2, y2, x2 - w2 - r2, y2, colors.RUMBLE);
+		this.drawPolygon(this.roadGraphics, x1 + w1 + r1, y1, x1 + w1, y1, x2 + w2, y2, x2 + w2 + r2, y2, colors.RUMBLE);
+		this.drawPolygon(this.roadGraphics, x1 - w1, y1, x1 + w1, y1, x2 + w2, y2, x2 - w2, y2, colors.ROAD);
 
 		const lanew1 = w1 * 2 / lanes;
 		const lanew2 = w2 * 2 / lanes;
 		let lanex1 = x1 - w1 + lanew1;
 		let lanex2 = x2 - w2 + lanew2;
 
-		for (let lane = 1; lane < lanes; lanex1 += lanew1, lanex2 += lanew2, lane++) {
-			this.drawPolygon(this.roadGraphics, lanex1 - l1 / 2, y1, lanex1 + l1 / 2, y1, lanex2 + l2 / 2, y2, lanex2 - l2 / 2, y2, Colors.ROAD_LIGHT.color);
+		if (colors.LANE) {
+			for (let lane = 1; lane < lanes; lanex1 += lanew1, lanex2 += lanew2, lane++) {
+				this.drawPolygon(this.roadGraphics, lanex1 - l1 / 2, y1, lanex1 + l1 / 2, y1, lanex2 + l2 / 2, y2, lanex2 - l2 / 2, y2, colors.LANE);
+			}
 		}
 
 		// Render.fog(ctx, 0, y1, width, y2 - y1, fog);
@@ -118,12 +129,12 @@ export class GameScene extends BaseScene {
 			segment.fog = 0; // TODO: Util.exponentialFog(n/drawDistance, fogDensity);
 
 			this.project(segment.p1, this.playerX * gameSettings.roadWidth, gameSettings.cameraHeight,
-				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight, gameSettings.roadWidth);
+					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
+					gameWidth, gameHeight, gameSettings.roadWidth);
 
 			this.project(segment.p2, this.playerX * gameSettings.roadWidth, gameSettings.cameraHeight,
-				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight, gameSettings.roadWidth);
+					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
+					gameWidth, gameHeight, gameSettings.roadWidth);
 
 			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY) {
 				continue;
@@ -137,7 +148,7 @@ export class GameScene extends BaseScene {
 				segment.p2.screen.y,
 				segment.p2.screen.w,
 				segment.fog,
-				segment.color,
+				segment.colors,
 			);
 
 			maxY = segment.p2.screen.y;
@@ -160,7 +171,13 @@ export class GameScene extends BaseScene {
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
 	}
 
-	private handleInput() {
-		// handle inputs
+	private handleInput(delta: number) {
+		if (this.cursors.up.isDown) {
+			this.speed = Util.accelerate(this.speed, gameSettings.accel, delta);
+		} else if (this.cursors.down.isDown) {
+			this.speed = Util.accelerate(this.speed, gameSettings.breaking, delta);
+		} else {
+			this.speed = Util.accelerate(this.speed, gameSettings.decel, delta);
+		}
 	}
 }
