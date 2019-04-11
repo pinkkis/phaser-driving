@@ -6,6 +6,7 @@ import { gameSettings } from '../config/GameSettings';
 import { SegmentPoint } from '../Components/SegmentPoint';
 import { Util } from '../Components/Util';
 import { Player } from '../Components/Player';
+import { ROAD } from '../Components/Road';
 
 export class GameScene extends BaseScene {
 	public segments: TrackSegment[];
@@ -50,20 +51,25 @@ export class GameScene extends BaseScene {
 	public update(time: number, delta: number): void {
 		// empty
 		this.roadGraphics.clear();
+		const playerSegment = this.findSegment(this.position + this.player.z);
+		const speedMultiplier = this.speed / gameSettings.maxSpeed;
+		const dx = this.speed <= 0 ? 0 : delta * 0.01 * speedMultiplier;
 
-		this.handleInput(delta / 100);
+		this.handleInput(delta, dx);
+
+		this.player.x = this.player.x - (dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal);
+
 		this.speed = Phaser.Math.Clamp(this.speed, 0, gameSettings.maxSpeed);
 		this.player.x = Phaser.Math.Clamp(this.player.x, -2, 2);
 
 		// TODO: offroad
-
 
 		// track position
 		this.position = Util.increase(this.position, (delta * 0.01) * this.speed, this.trackLength);
 
 		this.drawRoad();
 
-		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}`);
+		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}\ncurve: ${playerSegment.curve.toFixed(2)}`);
 	}
 
 	// private
@@ -124,8 +130,11 @@ export class GameScene extends BaseScene {
 		const gameHeight = this.scale.gameSize.height;
 
 		const baseSegment = this.findSegment(this.position);
+		const basePercent = Util.percentRemaining(this.position, gameSettings.segmentLength);
 
 		let maxY = gameHeight;
+		let x = 0;
+		let dx = - (baseSegment.curve * basePercent);
 
 		for (let n = 0; n < gameSettings.drawDistance; n++) {
 			const segmentIndex = (baseSegment.index + n) % this.segments.length;
@@ -134,13 +143,16 @@ export class GameScene extends BaseScene {
 			segment.looped = segment.index < baseSegment.index;
 			segment.fog = 0; // TODO: Util.exponentialFog(n/drawDistance, fogDensity);
 
-			this.project(segment.p1, this.player.x * gameSettings.roadWidth, gameSettings.cameraHeight,
-					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
-					gameWidth, gameHeight, gameSettings.roadWidth);
+			this.project(segment.p1, this.player.x * gameSettings.roadWidth - x, gameSettings.cameraHeight,
+				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
+				gameWidth, gameHeight, gameSettings.roadWidth);
 
-			this.project(segment.p2, this.player.x * gameSettings.roadWidth, gameSettings.cameraHeight,
-					this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
-					gameWidth, gameHeight, gameSettings.roadWidth);
+			this.project(segment.p2, this.player.x * gameSettings.roadWidth - x - dx, gameSettings.cameraHeight,
+				this.position - (segment.looped ? this.trackLength : 0), gameSettings.cameraDepth,
+				gameWidth, gameHeight, gameSettings.roadWidth);
+
+			x = x + dx;
+			dx = dx + segment.curve;
 
 			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY) {
 				continue;
@@ -161,33 +173,65 @@ export class GameScene extends BaseScene {
 		}
 	}
 
+	private addRoadSegment(curve: number): void {
+		this.segments.push( new TrackSegment(this.segments.length, curve) );
+	}
+
+	private addStraight(num: number = ROAD.LENGTH.MEDIUM): void {
+		this.addRoad(num, num, num, 0);
+	}
+
+	private addCurve(num: number = ROAD.LENGTH.MEDIUM, curve: number = ROAD.CURVE.MEDIUM): void {
+		this.addRoad(num, num, num, curve);
+	}
+
+	private addRoad(enter: number, hold: number, leave: number, curve: number): void {
+		let n;
+
+		for (n = 0; n < enter; n++) {
+			this.addRoadSegment(Util.easeIn(0, curve, n / enter));
+		}
+
+		for (n = 0; n < hold; n++) {
+			this.addRoadSegment(curve);
+		}
+
+		for (n = 0; n < leave; n++) {
+			this.addRoadSegment(Util.easeInOut(curve, 0, n / leave));
+		}
+	}
+
 	private findSegment(z: number): TrackSegment {
 		const index = Math.floor(z / gameSettings.segmentLength) % this.segments.length;
 		return this.segments[index];
 	}
 
 	private resetRoad(): void {
-		const length = 500;
-
 		this.segments = [];
-		for (let n = 0; n < length; n++) {
-			this.segments.push(new TrackSegment(n));
-		}
+
+		this.addStraight(ROAD.LENGTH.SHORT / 4);
+		this.addCurve(ROAD.LENGTH.MEDIUM, ROAD.CURVE.MEDIUM);
+		this.addStraight();
+		this.addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM);
+		this.addStraight();
+		this.addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.MEDIUM);
+		this.addCurve(ROAD.LENGTH.LONG, ROAD.CURVE.MEDIUM);
+		this.addStraight();
+		this.addCurve(ROAD.LENGTH.LONG, -ROAD.CURVE.EASY);
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
 	}
 
-	private handleInput(delta: number) {
+	private handleInput(delta: number, dx: number) {
 		if (this.cursors.up.isDown) {
-			this.speed = Util.accelerate(this.speed, gameSettings.accel, delta);
+			this.speed = Util.accelerate(this.speed, gameSettings.accel, delta * 0.01);
 		} else if (this.cursors.down.isDown) {
-			this.speed = Util.accelerate(this.speed, gameSettings.breaking, delta);
+			this.speed = Util.accelerate(this.speed, gameSettings.breaking, delta * 0.01);
 		} else {
-			this.speed = Util.accelerate(this.speed, gameSettings.decel, delta);
+			this.speed = Util.accelerate(this.speed, gameSettings.decel, delta * 0.01);
 		}
 
 		const speedMultiplier = this.speed / gameSettings.maxSpeed;
-		const dx = this.speed <= 0 ? 0 : delta * speedMultiplier * 0.5;
 
 		if (this.cursors.left.isDown) {
 			this.player.x -= dx;
