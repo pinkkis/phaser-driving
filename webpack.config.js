@@ -88,6 +88,9 @@ module.exports = {
 		new MiniCssExtractPlugin({
 			filename: '[name].css',
 			chunkFilename: '[name].css',
+		}),
+		new webpack.ProvidePlugin({
+			'THREE': 'three',
 		})
 	],
 	resolve: {

@@ -13,10 +13,11 @@ class GameSettings {
 	public accel = this.maxSpeed / 50;
 	public decel = -this.maxSpeed / 70;
 	public breaking = -this.maxSpeed / 20;
-	public offRoadDecel = -this.maxSpeed / 2;
+	public offRoadDecel = -this.maxSpeed / 10;
 	public offRoadLimit = this.maxSpeed / 4;
-	public centrifugal = 0.15;
-	public steerCompensation = 0.75;
+	public centrifugal = 0.175;
+	public steerCompensation = 0.5;
+	public maxTurn = 1;
 }
 
 export const gameSettings = new GameSettings();

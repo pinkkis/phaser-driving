@@ -1,3 +1,4 @@
+import './libs/GLTFLoader';
 import 'phaser';
 import '@csstools/normalize.css';
 import './css/styles.css';

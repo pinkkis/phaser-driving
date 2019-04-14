@@ -1,9 +1,5 @@
-import * as THREE from 'three';
-import { GLTFLoader } from './GLTFLoader';
-THREE.GLTFLoader = GLTFLoader;
-
 export class Phaser3D extends Phaser.Events.EventEmitter {
-	constructor(phaserScene, { fov = 75, aspect = null, near = 0.1, far = 1000, x = 0, y = 0, z = 0, anisotropy = 1 } = {}) {
+	constructor(phaserScene, { fov = 75, aspect = null, near = 0.1, far = 1000, x = 0, y = 0, z = 0, anisotropy = 1, antialias = false } = {}) {
 		super();
 
 		this.root = phaserScene;
@@ -25,7 +21,7 @@ export class Phaser3D extends Phaser.Events.EventEmitter {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: phaserScene.sys.game.canvas,
 			context: phaserScene.sys.game.context,
-			antialias: false
+			antialias: antialias
 		});
 
 		//  We don't want three.js to wipe our gl context!
