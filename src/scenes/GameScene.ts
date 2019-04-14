@@ -19,6 +19,11 @@ export class GameScene extends BaseScene {
 	public speedText: Phaser.GameObjects.BitmapText;
 	public roadGraphics: Phaser.GameObjects.Graphics;
 
+	public sky: Phaser.GameObjects.Rectangle;
+	public clouds1: Phaser.GameObjects.TileSprite;
+	public clouds2: Phaser.GameObjects.TileSprite;
+	public mountains: Phaser.GameObjects.TileSprite;
+
 	public cursors: Input.Keyboard.CursorKeys;
 
 	constructor(key: string, options: any) {
@@ -32,6 +37,11 @@ export class GameScene extends BaseScene {
 		this.speed = 0;
 
 		this.cursors = this.input.keyboard.createCursorKeys();
+
+		this.sky = this.add.rectangle(-10, -10, this.scale.gameSize.width + 10, this.scale.gameSize.height + 10, Colors.SKY.color).setOrigin(0);
+		this.clouds1 = this.add.tileSprite(0, 20, this.scale.gameSize.width, 64, 'clouds').setOrigin(0);
+		this.clouds2 = this.add.tileSprite(0, 50, this.scale.gameSize.width, 64, 'clouds').setOrigin(0);
+		this.mountains = this.add.tileSprite(0, this.scale.gameSize.height / 2 + 20, this.scale.gameSize.width, 149, 'mountain').setOrigin(0, 1);
 
 		this.roadGraphics = this.add.graphics();
 		this.player = new Player(this, 0, this.scale.gameSize.height - 5, gameSettings.cameraHeight * gameSettings.cameraDepth);

@@ -24,6 +24,9 @@ export class LoadScene extends BaseScene {
 		this.load.on('complete', () => {
 			progress.destroy();
 		});
+
+		this.load.image('clouds', './assets/clouds.png');
+		this.load.image('mountain', './assets/mountain.png');
 	}
 
 	public create(): void {
