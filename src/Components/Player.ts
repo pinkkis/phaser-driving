@@ -1,6 +1,7 @@
 import { GameScene } from '../scenes/GameScene';
 import { Phaser3D } from '../libs/Phaser3D';
 import { gameSettings } from '../config/GameSettings';
+import { Util } from './Util';
 
 const HALFPI = Math.PI / 2;
 
@@ -12,15 +13,20 @@ export class Player {
 	public model: any;
 
 	public turn: number;
+	public pitch: number;
 	public speed: number;
 	public trackPosition: number;
+
+	private turnVector: Phaser.Math.Vector3;
 
 	constructor(scene: GameScene, x: number, y: number, z: number, modelKey: string) {
 		this.position = new Phaser.Math.Vector3(x, y, z);
 		this.scene = scene;
 		this.turn = 0;
+		this.pitch = 0;
 		this.speed = 0;
 		this.trackPosition = 0;
+		this.turnVector = new Phaser.Math.Vector3(0, 0, 0);
 
 		this.p3d = new Phaser3D(this.scene, {fov: 45, x: 0, y: 5, z: -16, antialias: false });
 		this.p3d.addGLTFModel(modelKey);
@@ -52,10 +58,15 @@ export class Player {
 	}
 
 	public update(delta: number, dx: number) {
+		this.position.x += (this.turn * 0.08) * (this.speed / gameSettings.maxSpeed);
+
 		if (this.model) {
-			this.model.setRotationFromAxisAngle(new Phaser.Math.Vector3(0, 1, 0), HALFPI + -this.turn);
+			this.turnVector.y = HALFPI + -this.turn;
+			this.turnVector.x = Phaser.Math.Clamp(this.pitch, -0.3, 0.3);
+			this.model.rotation.setFromVector3(this.turnVector);
+
+			this.model.position.x = Util.interpolate(this.model.position.x, this.position.x, 0.95);
 		}
 
-		this.position.x += (this.turn * 0.08) * (this.speed / gameSettings.maxSpeed);
 	}
 }

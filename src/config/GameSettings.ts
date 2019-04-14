@@ -2,7 +2,7 @@ class GameSettings {
 	public roadWidth = 2200;
 	public roadWidthClamp = 3;
 	public segmentLength = 200;
-	public rumbleLength = 3;
+	public rumbleLength = 4;
 	public lanes = 3;
 	public fieldOfView = 100;
 	public cameraHeight = 1500;
@@ -18,6 +18,7 @@ class GameSettings {
 	public centrifugal = 0.175;
 	public steerCompensation = 0.5;
 	public maxTurn = 1;
+	public turnResetMultiplier = 0.1;
 }
 
 export const gameSettings = new GameSettings();

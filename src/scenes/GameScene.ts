@@ -38,7 +38,7 @@ export class GameScene extends BaseScene {
 		this.clouds1 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds').setOrigin(0).setZ(2).setTileScale(1, 1);
 		this.clouds2 = this.add.tileSprite(0, 30, gameWidth, 64, 'clouds').setOrigin(0).setZ(3).setTileScale(0.5, 1);
 		this.clouds3 = this.add.tileSprite(0, 50, gameWidth, 64, 'clouds').setOrigin(0).setZ(4).setTileScale(1, 1.5);
-		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 20, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(5);
+		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 30, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(5);
 
 		this.renderer = new Renderer(this);
 		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
@@ -64,6 +64,8 @@ export class GameScene extends BaseScene {
 		this.player.turn = Phaser.Math.Clamp(this.player.turn, -gameSettings.maxTurn, gameSettings.maxTurn);
 		this.player.trackPosition = Util.increase(this.player.trackPosition, (delta * 0.01) * this.player.speed, this.road.trackLength);
 
+		this.player.pitch = (playerSegment.p1.world.y - playerSegment.p2.world.y) * 0.002;
+
 		// update player turn
 		this.player.update(delta, dx);
 
@@ -84,6 +86,7 @@ export class GameScene extends BaseScene {
 		player y: ${this.player.y.toFixed(2)}
 		player x: ${this.player.x.toFixed(2)}
 		turn: ${this.player.turn.toFixed(2)}
+		pitch: ${(this.player.pitch).toFixed(2)}
 		speedX: ${(this.player.speed / gameSettings.maxSpeed).toFixed(3)}
 		dx: ${dx.toFixed(3)}`);
 	}
@@ -107,14 +110,12 @@ export class GameScene extends BaseScene {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.decel, dlt);
 		}
 
-		// const speedMultiplier = this.player.speed / gameSettings.maxSpeed / 20;
-
 		if (this.cursors.left.isDown) {
 			this.player.turn -= dlt * 0.5;
 		} else if (this.cursors.right.isDown) {
 			this.player.turn += dlt * 0.5;
 		} else {
-			this.player.turn = Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, 0.1);
+			this.player.turn = Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, gameSettings.turnResetMultiplier);
 		}
 	}
 }
