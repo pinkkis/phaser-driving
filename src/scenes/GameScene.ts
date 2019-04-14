@@ -16,12 +16,13 @@ export class GameScene extends BaseScene {
 	public speed: number;
 	public player: Player;
 
-	public speedText: Phaser.GameObjects.BitmapText;
+	public debugText: Phaser.GameObjects.BitmapText;
 	public roadGraphics: Phaser.GameObjects.Graphics;
 
 	public sky: Phaser.GameObjects.Rectangle;
 	public clouds1: Phaser.GameObjects.TileSprite;
 	public clouds2: Phaser.GameObjects.TileSprite;
+	public clouds3: Phaser.GameObjects.TileSprite;
 	public mountains: Phaser.GameObjects.TileSprite;
 
 	public cursors: Input.Keyboard.CursorKeys;
@@ -38,14 +39,16 @@ export class GameScene extends BaseScene {
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 
-		this.sky = this.add.rectangle(-10, -10, this.scale.gameSize.width + 10, this.scale.gameSize.height + 10, Colors.SKY.color).setOrigin(0);
-		this.clouds1 = this.add.tileSprite(0, 20, this.scale.gameSize.width, 64, 'clouds').setOrigin(0);
-		this.clouds2 = this.add.tileSprite(0, 50, this.scale.gameSize.width, 64, 'clouds').setOrigin(0);
-		this.mountains = this.add.tileSprite(0, this.scale.gameSize.height / 2 + 20, this.scale.gameSize.width, 149, 'mountain').setOrigin(0, 1);
+		this.sky = this.add.rectangle(-10, -10, this.scale.gameSize.width + 10, this.scale.gameSize.height + 10, Colors.SKY.color).setOrigin(0).setZ(0);
+		this.clouds1 = this.add.tileSprite(0, 10, this.scale.gameSize.width, 64, 'clouds').setOrigin(0).setZ(2).setTileScale(1, 1);
+		this.clouds2 = this.add.tileSprite(0, 30, this.scale.gameSize.width, 64, 'clouds').setOrigin(0).setZ(3).setTileScale(0.5, 1);
+		this.clouds3 = this.add.tileSprite(0, 50, this.scale.gameSize.width, 64, 'clouds').setOrigin(0).setZ(4).setTileScale(1, 1.5);
+		this.mountains = this.add.tileSprite(0, this.scale.gameSize.height / 2 + 20, this.scale.gameSize.width, 149, 'mountain').setOrigin(0, 1).setZ(5);
 
 		this.roadGraphics = this.add.graphics();
 		this.player = new Player(this, 0, this.scale.gameSize.height - 5, gameSettings.cameraHeight * gameSettings.cameraDepth);
-		this.speedText = this.add.bitmapText(5, 5, 'retro', 'speed: 0\nposition: 0', 16);
+
+		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16);
 
 		this.resetRoad();
 	}
@@ -64,7 +67,10 @@ export class GameScene extends BaseScene {
 		this.player.x = this.player.x - (dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal);
 
 		this.speed = Phaser.Math.Clamp(this.speed, 0, gameSettings.maxSpeed);
-		this.player.x = Phaser.Math.Clamp(this.player.x, -2, 2);
+		this.player.x = Phaser.Math.Clamp(this.player.x, -gameSettings.roadWidthClamp, gameSettings.roadWidthClamp);
+
+		// update bg position
+		this.updateBg(dx * playerSegment.curve);
 
 		// TODO: offroad
 
@@ -73,10 +79,22 @@ export class GameScene extends BaseScene {
 
 		this.drawRoad();
 
-		this.speedText.setText(`speed: ${this.speed.toFixed()}\nposition: ${this.position.toFixed(2)}\ncurve: ${playerSegment.curve.toFixed(2)}\nplayer y: ${this.player.y.toFixed(2)}`);
+		this.debugText.setText(`speed: ${this.speed.toFixed()}
+		position: ${this.position.toFixed(2)}
+		curve: ${playerSegment.curve.toFixed(2)}
+		player y: ${this.player.y.toFixed(2)}
+		speedX: ${(this.speed / gameSettings.maxSpeed).toFixed(3)}
+		dx: ${dx.toFixed(3)}
+	`);
 	}
 
 	// private
+	private updateBg(offset: number): void {
+		this.clouds1.tilePositionX += 0.1 + offset * this.clouds1.z;
+		this.clouds2.tilePositionX += 0.1 + offset * this.clouds2.z;
+		this.clouds3.tilePositionX += 0.1 + offset * this.clouds3.z;
+		this.mountains.tilePositionX += offset * this.mountains.z;
+	}
 
 	private project(sp: SegmentPoint, cameraX: number, cameraY: number, cameraZ: number, cameraDepth: number, width: number, height: number, roadWidth: number) {
 		sp.camera.x = (sp.world.x || 0) - cameraX;
@@ -256,11 +274,11 @@ export class GameScene extends BaseScene {
 		const speedMultiplier = this.speed / gameSettings.maxSpeed;
 
 		if (this.cursors.left.isDown) {
-			this.player.x -= dx;
+			this.player.x -= dx * gameSettings.steerCompensation;
 		}
 
 		if (this.cursors.right.isDown) {
-			this.player.x += dx;
+			this.player.x += dx * gameSettings.steerCompensation;
 		}
 	}
 }
