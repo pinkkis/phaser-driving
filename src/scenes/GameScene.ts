@@ -54,19 +54,18 @@ export class GameScene extends BaseScene {
 
 		this.resetRoad();
 
-		this.p3d = new Phaser3D(this, { x: 0, y: 0.1, z: -2 });
+		this.p3d = new Phaser3D(this, { x: 0, y: 5, z: -16 });
+		this.p3d.camera.fov = 45;
+		this.p3d.camera.updateProjectionMatrix();
 		this.p3d.addGLTFModel('playercar');
 
-		this.p3d.camera.lookAt(0, 0, 0);
+		this.p3d.camera.lookAt(0, 5, 0);
 
 		this.p3d.add.hemisphereLight({ skyColor: 0xefefff, groundColor: 0x111111, intensity: 2 });
 		this.p3d.on('loadgltf', (gltf: any, model: any) => {
 			model.rotateY(Math.PI / 2);
-			model.scale.x = 0.5;
-			model.scale.y = 0.5;
-			model.scale.z = 0.5;
-			model.position.set(-0.05, -0.85, -0.075);
-			console.dir(model);
+			model.position.set(0, 0, 0);
+			model.scale.set(1, 1, 1);
 		});
 
 	}
