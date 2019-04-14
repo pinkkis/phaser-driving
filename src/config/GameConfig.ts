@@ -5,18 +5,11 @@ export const gameConfig: GameConfig = {
 		parent: 'game-container',
 		mode: Phaser.Scale.FIT,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
-		width: 640,
-		height: 360,
+		width: 320,
+		height: 180,
 	},
 	render: {
 		pixelArt: true,
-	},
-	physics: {
-		default: 'arcade',
-		arcade: {
-			gravity: { y: 0 },
-			debug: true,
-		},
 	},
 	plugins: {
 		global: [] as any[],

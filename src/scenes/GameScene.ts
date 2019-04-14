@@ -6,6 +6,7 @@ import { Util } from '../Components/Util';
 import { Player } from '../Components/Player';
 import { Road } from '../Components/Road';
 import { Renderer } from '../Components/Renderer';
+import { TrackSegment } from '../Components/TrackSegment';
 
 export class GameScene extends BaseScene {
 	public position: number;
@@ -35,10 +36,10 @@ export class GameScene extends BaseScene {
 		this.road = new Road();
 
 		this.sky = this.add.rectangle(-10, -10, gameWidth + 10, gameHeight + 10, Colors.SKY.color).setOrigin(0).setZ(0);
-		this.clouds1 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds').setOrigin(0).setZ(2).setTileScale(1, 1);
-		this.clouds2 = this.add.tileSprite(0, 30, gameWidth, 64, 'clouds').setOrigin(0).setZ(3).setTileScale(0.5, 1);
-		this.clouds3 = this.add.tileSprite(0, 50, gameWidth, 64, 'clouds').setOrigin(0).setZ(4).setTileScale(1, 1.5);
-		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 30, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(5);
+		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds').setOrigin(0).setZ(3).setTileScale(0.5, 1);
+		this.clouds3 = this.add.tileSprite(0, 20, gameWidth, 64, 'clouds').setOrigin(0).setZ(4).setTileScale(1, 1.5);
+		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 50, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(5);
+		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds').setOrigin(0).setZ(2).setTileScale(1, 1);
 
 		this.renderer = new Renderer(this);
 		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
@@ -54,7 +55,7 @@ export class GameScene extends BaseScene {
 		const speedMultiplier = this.player.speed / gameSettings.maxSpeed;
 		const dx = this.player.speed <= 0 ? 0 : delta * 0.01 * speedMultiplier;
 
-		this.handleInput(delta);
+		this.handleInput(delta, playerSegment);
 
 		this.player.y = Util.interpolate(playerSegment.p1.world.y, playerSegment.p2.world.y, playerPercent);
 		this.player.x = this.player.x - (dx * speedMultiplier * playerSegment.curve * gameSettings.centrifugal);
@@ -74,6 +75,12 @@ export class GameScene extends BaseScene {
 
 		// offroad
 		if (Math.abs(this.player.x) > 1.1 && this.player.speed > gameSettings.offRoadLimit) {
+			this.player.isOnGravel = true;
+		} else {
+			this.player.isOnGravel = false;
+		}
+
+		if (this.player.isOnGravel) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.offRoadDecel, delta * 0.01);
 		}
 
@@ -99,7 +106,7 @@ export class GameScene extends BaseScene {
 		this.mountains.tilePositionX += offset * this.mountains.z;
 	}
 
-	private handleInput(delta: number) {
+	private handleInput(delta: number, playerSegment: TrackSegment) {
 		const dlt = delta * 0.01;
 
 		if (this.cursors.up.isDown) {
@@ -111,9 +118,9 @@ export class GameScene extends BaseScene {
 		}
 
 		if (this.cursors.left.isDown) {
-			this.player.turn -= dlt * 0.5;
+			this.player.turn -= dlt * (Math.abs(playerSegment.curve) > 0.1 ? 0.5 : 0.25);
 		} else if (this.cursors.right.isDown) {
-			this.player.turn += dlt * 0.5;
+			this.player.turn += dlt * (Math.abs(playerSegment.curve) > 0.1 ? 0.5 : 0.25);
 		} else {
 			this.player.turn = Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, gameSettings.turnResetMultiplier);
 		}

@@ -16,6 +16,7 @@ export class Player {
 	public pitch: number;
 	public speed: number;
 	public trackPosition: number;
+	public isOnGravel: boolean;
 
 	private turnVector: Phaser.Math.Vector3;
 
@@ -26,6 +27,7 @@ export class Player {
 		this.pitch = 0;
 		this.speed = 0;
 		this.trackPosition = 0;
+		this.isOnGravel = false;
 		this.turnVector = new Phaser.Math.Vector3(0, 0, 0);
 
 		this.p3d = new Phaser3D(this.scene, {fov: 45, x: 0, y: 5, z: -16, antialias: false });
@@ -66,6 +68,14 @@ export class Player {
 			this.model.rotation.setFromVector3(this.turnVector);
 
 			this.model.position.x = Util.interpolate(this.model.position.x, this.position.x, 0.95);
+
+			if (this.pitch > 0) {
+				this.model.position.y = Util.interpolate(this.model.position.y, -this.pitch * 3, 0.33);
+			}
+
+			if (this.speed > 20) {
+				this.model.position.y = Util.interpolate(this.model.position.y + Phaser.Math.Between(-1, 1) * (this.isOnGravel ? 0.1 : 0.01), this.model.position.y, 0.2);
+			}
 		}
 
 	}

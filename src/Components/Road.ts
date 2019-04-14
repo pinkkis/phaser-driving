@@ -77,8 +77,8 @@ export class Road {
 		this.addStraight();
 		this.addCurve(SEGMENT.LENGTH.LONG, -SEGMENT.CURVE.EASY);
 		this.addHill(SEGMENT.LENGTH.LONG, -SEGMENT.HILL.MEDIUM);
-		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, -SEGMENT.HILL.MEDIUM);
-		this.addRoad(200, 200, 200, SEGMENT.CURVE.NONE, -this.getLastSegmentYPos() / gameSettings.segmentLength);
+		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, -SEGMENT.HILL.LOW);
+		this.addRoad(200, 200, 200, SEGMENT.CURVE.NONE, Math.round(-this.getLastSegmentYPos() / gameSettings.segmentLength));
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
 	}

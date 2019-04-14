@@ -2,7 +2,7 @@ class GameSettings {
 	public roadWidth = 2200;
 	public roadWidthClamp = 3;
 	public segmentLength = 200;
-	public rumbleLength = 4;
+	public rumbleLength = 6;
 	public lanes = 3;
 	public fieldOfView = 100;
 	public cameraHeight = 1500;
