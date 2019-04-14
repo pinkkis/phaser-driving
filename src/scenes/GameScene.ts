@@ -87,15 +87,15 @@ export class GameScene extends BaseScene {
 		// draw road
 		this.renderer.update(time, delta);
 
-		this.debugText.setText(`speed: ${this.player.speed.toFixed()}
-		position: ${this.player.trackPosition.toFixed(2)}
-		curve: ${playerSegment.curve.toFixed(2)}
-		player y: ${this.player.y.toFixed(2)}
-		player x: ${this.player.x.toFixed(2)}
-		turn: ${this.player.turn.toFixed(2)}
-		pitch: ${(this.player.pitch).toFixed(2)}
-		speedX: ${(this.player.speed / gameSettings.maxSpeed).toFixed(3)}
-		dx: ${dx.toFixed(3)}`);
+		// this.debugText.setText(`speed: ${this.player.speed.toFixed()}
+		// position: ${this.player.trackPosition.toFixed(2)}
+		// curve: ${playerSegment.curve.toFixed(2)}
+		// player y: ${this.player.y.toFixed(2)}
+		// player x: ${this.player.x.toFixed(2)}
+		// turn: ${this.player.turn.toFixed(2)}
+		// pitch: ${(this.player.pitch).toFixed(2)}
+		// speedX: ${(this.player.speed / gameSettings.maxSpeed).toFixed(3)}
+		// dx: ${dx.toFixed(3)}`);
 	}
 
 	// private
