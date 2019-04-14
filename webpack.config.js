@@ -12,6 +12,8 @@ const {version, distOutput} = require('./buildConfig');
 // Phaser webpack config
 const phaserModule = path.join(__dirname, '/node_modules/phaser/');
 const phaser = path.join(phaserModule, process.env.NODE_ENV === 'production' ? 'dist/phaser.min.js' : 'dist/phaser.js');
+const threeModule = path.join(__dirname, '/node_modules/three/');
+const three = path.join(threeModule, 'build/three.module.js');
 
 module.exports = {
 	output: {
@@ -91,7 +93,8 @@ module.exports = {
 	resolve: {
 		extensions: ['.ts', '.js'],
 		alias: {
-			'phaser': phaser
+			'phaser': phaser,
+			'three': three,
 		}
 	},
 	optimization: {

@@ -10,14 +10,14 @@ export class Player {
 
 		this.scene = scene;
 
-		this.sprite = this.scene.add.rectangle(this.position.x + this.scene.scale.gameSize.width / 2, this.scene.scale.gameSize.height - 20, 200, 100, 0xff0000, 1)
-						.setOrigin(0.5, 1).setDepth(100);
+		// this.sprite = this.scene.add.rectangle(this.position.x + this.scene.scale.gameSize.width / 2, this.scene.scale.gameSize.height - 20, 200, 100, 0xff0000, 1)
+		// 				.setOrigin(0.5, 1).setDepth(100);
 	}
 
 	public get x(): number { return this.position.x; }
 	public set x(x: number) {
 		this.position.x = x;
-		this.sprite.x = x + this.scene.scale.gameSize.width / 2;
+		// this.sprite.x = x + this.scene.scale.gameSize.width / 2;
 	}
 
 	public get y(): number { return this.position.y; }
@@ -28,6 +28,6 @@ export class Player {
 	public get z(): number { return this.position.z; }
 	public set z(z: number) {
 		this.position.z = z;
-		this.sprite.z = z;
+		// this.sprite.z = z;
 	}
 }

@@ -7,6 +7,7 @@ import { SegmentPoint } from '../Components/SegmentPoint';
 import { Util } from '../Components/Util';
 import { Player } from '../Components/Player';
 import { ROAD } from '../Components/Road';
+import { Phaser3D } from '../libs/Phaser3D';
 
 export class GameScene extends BaseScene {
 	public segments: TrackSegment[];
@@ -26,6 +27,7 @@ export class GameScene extends BaseScene {
 	public mountains: Phaser.GameObjects.TileSprite;
 
 	public cursors: Input.Keyboard.CursorKeys;
+	public p3d: Phaser3D;
 
 	constructor(key: string, options: any) {
 		super('GameScene');
@@ -51,6 +53,22 @@ export class GameScene extends BaseScene {
 		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16);
 
 		this.resetRoad();
+
+		this.p3d = new Phaser3D(this, { x: 0, y: 0.1, z: -2 });
+		this.p3d.addGLTFModel('playercar');
+
+		this.p3d.camera.lookAt(0, 0, 0);
+
+		this.p3d.add.hemisphereLight({ skyColor: 0xefefff, groundColor: 0x111111, intensity: 2 });
+		this.p3d.on('loadgltf', (gltf: any, model: any) => {
+			model.rotateY(Math.PI / 2);
+			model.scale.x = 0.5;
+			model.scale.y = 0.5;
+			model.scale.z = 0.5;
+			model.position.set(-0.05, -0.85, -0.075);
+			console.dir(model);
+		});
+
 	}
 
 	public update(time: number, delta: number): void {
@@ -84,8 +102,7 @@ export class GameScene extends BaseScene {
 		curve: ${playerSegment.curve.toFixed(2)}
 		player y: ${this.player.y.toFixed(2)}
 		speedX: ${(this.speed / gameSettings.maxSpeed).toFixed(3)}
-		dx: ${dx.toFixed(3)}
-	`);
+		dx: ${dx.toFixed(3)}`);
 	}
 
 	// private
@@ -101,9 +118,9 @@ export class GameScene extends BaseScene {
 		sp.camera.y = (sp.world.y || 0) - cameraY;
 		sp.camera.z = (sp.world.z || 0) - cameraZ;
 		sp.screen.scale = cameraDepth / sp.camera.z;
-		sp.screen.x = Math.round( (width / 2) + (sp.screen.scale * sp.camera.x * width / 2) );
-		sp.screen.y = Math.round( (height / 2) - (sp.screen.scale * sp.camera.y * height / 2) );
-		sp.screen.w = Math.round( (sp.screen.scale * roadWidth * width / 2) );
+		sp.screen.x = Math.round((width / 2) + (sp.screen.scale * sp.camera.x * width / 2));
+		sp.screen.y = Math.round((height / 2) - (sp.screen.scale * sp.camera.y * height / 2));
+		sp.screen.w = Math.round((sp.screen.scale * roadWidth * width / 2));
 	}
 
 	private drawPolygon(g: Phaser.GameObjects.Graphics, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number, color: number) {
@@ -195,7 +212,7 @@ export class GameScene extends BaseScene {
 	}
 
 	private addRoadSegment(curve: number, y: number): void {
-		this.segments.push( new TrackSegment(this.segments.length, curve, y, this.getLastSegmentYPos()) );
+		this.segments.push(new TrackSegment(this.segments.length, curve, y, this.getLastSegmentYPos()));
 	}
 
 	private addStraight(num: number = ROAD.LENGTH.MEDIUM): void {

@@ -27,6 +27,7 @@ export class LoadScene extends BaseScene {
 
 		this.load.image('clouds', './assets/clouds.png');
 		this.load.image('mountain', './assets/mountain.png');
+		this.load.binary('playercar', './assets/3d/car.glb');
 	}
 
 	public create(): void {
