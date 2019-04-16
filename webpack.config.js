@@ -23,7 +23,7 @@ module.exports = {
 	entry: {
 		game: ['./src/game.ts']
 	},
-	devtool: 'eval-source-map',
+	devtool: process.env.NODE_ENV === 'production' ? undefined : 'eval-source-map',
 	module: {
 		rules: [{
 			test: /\.tsx?$/,
