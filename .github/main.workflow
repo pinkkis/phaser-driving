@@ -12,7 +12,6 @@ action "Publish to gh-pages branch" {
   uses = "pinkkis/page-publisher-gh-action@master"
   env = {
     TARGET_REPO = "pinkkis/phaser-driving"
-    CNAME = "driver.poisonvial.com"
   }
   secrets = [
     "GITHUB_TOKEN",
