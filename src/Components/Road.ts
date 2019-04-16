@@ -2,6 +2,8 @@ import { TrackSegment } from './TrackSegment';
 import { gameSettings } from '../config/GameSettings';
 import { Util } from './Util';
 import { SEGMENT } from './SegmentType';
+import { Prop } from './Prop';
+import { GameScene } from '../scenes/GameScene';
 
 export class Road {
 	public segments: TrackSegment[];
@@ -63,6 +65,8 @@ export class Road {
 	public resetRoad(): void {
 		this.segments = [];
 
+		// this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.MEDIUM);
+		this.addHill(SEGMENT.LENGTH.SHORT, SEGMENT.HILL.MEDIUM);
 		this.addStraight(SEGMENT.LENGTH.SHORT / 2);
 		this.addCurve(SEGMENT.LENGTH.MEDIUM, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.LOW);
 		this.addHill(SEGMENT.LENGTH.LONG, SEGMENT.HILL.MEDIUM);
@@ -81,6 +85,26 @@ export class Road {
 		this.addRoad(200, 200, 200, SEGMENT.CURVE.NONE, Math.round(-this.getLastSegmentYPos() / gameSettings.segmentLength));
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
+	}
+
+	public addProp(scene: GameScene, segmentIndex: number, name: string, offset: number, collides: boolean = false): boolean {
+		try {
+			const seg = this.segments[segmentIndex];
+			const prop = new Prop(scene, name, offset, collides);
+			seg.props.add(prop);
+
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	public hideAllProps(): void {
+		this.segments.forEach( (segment: TrackSegment) => {
+			for (const prop of segment.props) {
+				prop.sprite.setVisible(false);
+			}
+		});
 	}
 
 }

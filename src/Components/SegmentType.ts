@@ -17,4 +17,9 @@ export const SEGMENT = {
 		MEDIUM: 40,
 		HIGH: 60,
 	},
+	WIDTH: {
+		NORMAL: 1,
+		WIDE: 2,
+		NARROW: 0.5,
+	},
 };

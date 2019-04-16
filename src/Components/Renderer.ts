@@ -51,9 +51,9 @@ export class Renderer {
 	public scene: GameScene;
 	public roadGraphics: Phaser.GameObjects.Graphics;
 
-	constructor(scene: GameScene) {
+	constructor(scene: GameScene, depth: number = 0) {
 		this.scene = scene;
-		this.roadGraphics = this.scene.add.graphics();
+		this.roadGraphics = this.scene.add.graphics().setDepth(depth);
 	}
 
 	public update(time: number, delta: number): void {
@@ -68,26 +68,28 @@ export class Renderer {
 		const baseSegment = this.scene.road.findSegmentByZ(this.scene.player.trackPosition);
 		const basePercent = Util.percentRemaining(this.scene.player.trackPosition, gameSettings.segmentLength);
 
-		let maxY = gameHeight;
-		let x = 0;
-		let dx = - (baseSegment.curve * basePercent);
+		let maxY = gameHeight; // used for clipping things behind a hill
+		let roadCenterX = 0;
+		let deltaX = - (baseSegment.curve * basePercent);
 
+		// draw road front to back
 		for (let n = 0; n < gameSettings.drawDistance; n++) {
 			const segmentIndex = (baseSegment.index + n) % this.scene.road.segments.length;
 			const segment = this.scene.road.segments[segmentIndex];
 
+			segment.clip = maxY;
 			segment.looped = segment.index < baseSegment.index;
 
-			Renderer.project(segment.p1, this.scene.player.x * gameSettings.roadWidth - x, this.scene.player.y + gameSettings.cameraHeight,
+			Renderer.project(segment.p1, this.scene.player.x * gameSettings.roadWidth - roadCenterX, this.scene.player.y + gameSettings.cameraHeight,
 				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
 				gameWidth, gameHeight, gameSettings.roadWidth);
 
-			Renderer.project(segment.p2, this.scene.player.x * gameSettings.roadWidth - x - dx, this.scene.player.y + gameSettings.cameraHeight,
+			Renderer.project(segment.p2, this.scene.player.x * gameSettings.roadWidth - roadCenterX - deltaX, this.scene.player.y + gameSettings.cameraHeight,
 				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
 				gameWidth, gameHeight, gameSettings.roadWidth);
 
-			x = x + dx;
-			dx = dx + segment.curve;
+			roadCenterX = roadCenterX + deltaX;
+			deltaX = deltaX + segment.curve;
 
 			if (segment.p1.camera.z <= gameSettings.cameraDepth || segment.p2.screen.y >= maxY || segment.p2.screen.y >= segment.p1.screen.y) {
 				continue;
@@ -99,6 +101,20 @@ export class Renderer {
 				segment.colors);
 
 			maxY = segment.p2.screen.y;
+		}
+
+		// draw props back to front
+		for (let n = gameSettings.drawDistance - 1; n > 0; n--) {
+			const segmentIndex = (baseSegment.index + n) % this.scene.road.segments.length;
+			const segment = this.scene.road.segments[segmentIndex];
+
+			for (const prop of segment.props) {
+				const scale = segment.p1.screen.scale;
+				const x = segment.p1.screen.x + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
+				const y = segment.p1.screen.y;
+
+				prop.update(x, y, scale, segment.clip);
+			}
 		}
 	}
 }
