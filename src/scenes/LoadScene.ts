@@ -1,8 +1,6 @@
 import { BaseScene } from './BaseScene';
 
 export class LoadScene extends BaseScene {
-	private rt: Phaser.GameObjects.RenderTexture;
-
 	constructor(key: string, options: any) {
 		super('LoadScene');
 	}
@@ -27,6 +25,8 @@ export class LoadScene extends BaseScene {
 
 		this.load.image('clouds', './assets/clouds.png');
 		this.load.image('mountain', './assets/mountain.png');
+		this.load.image('boulder', './assets/boulder.png');
+		this.load.image('tree', './assets/tree.png');
 		this.load.binary('playercar', './assets/3d/car.glb');
 	}
 

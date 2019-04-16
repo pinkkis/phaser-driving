@@ -31,6 +31,7 @@ export class Player {
 		this.turnVector = new Phaser.Math.Vector3(0, 0, 0);
 
 		this.p3d = new Phaser3D(this.scene, {fov: 45, x: 0, y: 5, z: -16, antialias: false });
+		this.p3d.view.setDepth(20);
 		this.p3d.addGLTFModel(modelKey);
 
 		this.p3d.camera.lookAt(0, 5, 0);

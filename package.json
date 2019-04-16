@@ -1,13 +1,12 @@
 {
   "name": "phaser-driver",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Outrun style driving game in Phaser 3",
   "main": "index.js",
   "scripts": {
     "test": "ava",
     "test:watch": "ava -w",
     "itchio": "node ./tasks/createZip.js",
-    "extrude": "tile-extruder -w 32 -h 32",
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "start": "cross-env NODE_ENV=development webpack-dev-server --mode development --progress --port=8000 --open"
   },
