@@ -4,9 +4,10 @@ class GameSettings {
 	public segmentLength = 200;
 	public rumbleLength = 6;
 	public lanes = 3;
-	public fieldOfView = 100;
-	public cameraHeight = 1500;
+	public fieldOfView = 110;
+	public cameraHeight = 2000;
 	public cameraDepth = 1 / Math.tan( (this.fieldOfView / 2) * Math.PI / 180 );
+	public projectYCompensation = 30;
 	public drawDistance = 500;
 	public fogDensity = 5;
 	public maxSpeed = this.segmentLength * 8;
@@ -19,7 +20,7 @@ class GameSettings {
 	public steerCompensation = 0.5;
 	public maxTurn = 1;
 	public turnResetMultiplier = 0.1;
-	public cameraAngleResetMultiplier = 0.1;
+	public cameraAngleResetMultiplier = 0.07;
 }
 
 export const gameSettings = new GameSettings();

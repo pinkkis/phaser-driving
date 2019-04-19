@@ -82,11 +82,11 @@ export class Renderer {
 
 			Renderer.project(segment.p1, this.scene.player.x * gameSettings.roadWidth - roadCenterX, this.scene.player.y + gameSettings.cameraHeight,
 				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight, gameSettings.roadWidth);
+				gameWidth, gameHeight - gameSettings.projectYCompensation, gameSettings.roadWidth);
 
 			Renderer.project(segment.p2, this.scene.player.x * gameSettings.roadWidth - roadCenterX - deltaX, this.scene.player.y + gameSettings.cameraHeight,
 				this.scene.player.trackPosition - (segment.looped ? this.scene.road.trackLength : 0), gameSettings.cameraDepth,
-				gameWidth, gameHeight, gameSettings.roadWidth);
+				gameWidth, gameHeight - gameSettings.projectYCompensation, gameSettings.roadWidth);
 
 			roadCenterX = roadCenterX + deltaX;
 			deltaX = deltaX + segment.curve;

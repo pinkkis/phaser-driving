@@ -95,7 +95,7 @@ export class Player {
 			}
 
 			if (this.speed > 20) {
-				this.model.position.y = Util.interpolate(this.model.position.y + Phaser.Math.Between(-1, 1) * (this.isOnGravel ? 0.1 : 0.01), 0, 0.2);
+				this.model.position.y = Util.interpolate(this.model.position.y + Phaser.Math.Between(-1, 1) * (this.isOnGravel ? 0.05 : 0.01), 0, 0.2);
 			}
 
 			this.updateParticles();
