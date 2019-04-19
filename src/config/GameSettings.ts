@@ -19,6 +19,7 @@ class GameSettings {
 	public steerCompensation = 0.5;
 	public maxTurn = 1;
 	public turnResetMultiplier = 0.1;
+	public cameraAngleResetMultiplier = 0.1;
 }
 
 export const gameSettings = new GameSettings();

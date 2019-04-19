@@ -1,11 +1,13 @@
 import { BaseScene } from './BaseScene';
 import { SpeedGauge } from '../Components/SpeedGauge';
+import { TrackRadar } from '../Components/TrackRadar';
 
 export class RaceUiScene extends BaseScene {
 	public timerText: Phaser.GameObjects.BitmapText;
 	public timeLargeText: Phaser.GameObjects.BitmapText;
 	public timeSmallText: Phaser.GameObjects.BitmapText;
 	public speedGauge: SpeedGauge;
+	public trackRadar: TrackRadar;
 
 	public timer: Phaser.Tweens.Tween;
 
@@ -19,6 +21,7 @@ export class RaceUiScene extends BaseScene {
 		this.timeSmallText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 16, 'retro', '000', 8).setOrigin(0, 0).setTint(0xff0000);
 
 		this.speedGauge = new SpeedGauge(this, 60, 60, 50);
+		this.trackRadar = new TrackRadar(this, this.scale.gameSize.width - 40, 30);
 
 		this.timer = this.tweens.addCounter({
 			from: 180,

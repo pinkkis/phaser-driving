@@ -88,6 +88,7 @@ export class Player {
 			this.turnVector.y = HALFPI + -this.turn;
 			this.turnVector.x = Phaser.Math.Clamp(this.pitch, -0.3, 0.3);
 			this.model.rotation.setFromVector3(this.turnVector);
+			this.p3d.camera.rotation.z = Math.PI + Phaser.Math.DegToRad(this.scene.cameraAngle);
 
 			if (this.pitch > 0) {
 				this.model.position.y = Util.interpolate(this.model.position.y, -this.pitch * 3, 0.33);

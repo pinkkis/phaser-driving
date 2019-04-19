@@ -40,6 +40,10 @@ export class SpeedGauge {
 		this.speedText.setText(this.speedValue.toString());
 	}
 
+	public destroy(): void {
+		//
+	}
+
 	// -------------
 
 	private drawGauge(): void {

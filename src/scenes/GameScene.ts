@@ -21,6 +21,9 @@ export class GameScene extends BaseScene {
 	public clouds3: Phaser.GameObjects.TileSprite;
 	public mountains: Phaser.GameObjects.TileSprite;
 
+	public camera: Phaser.Cameras.Scene2D.Camera;
+	public cameraAngle: number = 0;
+
 	public hills: Phaser.GameObjects.TileSprite;
 	public hillsBaseY: number;
 
@@ -37,17 +40,18 @@ export class GameScene extends BaseScene {
 		const gameHeight = this.scale.gameSize.height;
 
 		this.cursors = this.input.keyboard.createCursorKeys();
+		this.camera = this.cameras.main;
 
 		this.road = new Road(this);
 
-		this.sky = this.add.rectangle(-10, -10, gameWidth + 10, gameHeight + 10, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
-		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds1').setOrigin(0).setZ(3).setDepth(1);
-		this.clouds3 = this.add.tileSprite(0, 20, gameWidth, 64, 'clouds2').setOrigin(0).setZ(4).setDepth(2);
-		this.mountains = this.add.tileSprite(0, gameHeight / 2 - 85, gameWidth, 128, 'mountain').setOrigin(0).setZ(3).setDepth(3);
-		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds1').setOrigin(0).setZ(2).setDepth(4);
+		this.sky = this.add.rectangle(-10, -20, gameWidth + 20, gameHeight + 30, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
+		this.clouds2 = this.add.tileSprite(-10, 10, gameWidth + 20, 64, 'clouds1').setOrigin(0).setZ(3).setDepth(1);
+		this.clouds3 = this.add.tileSprite(-10, 20, gameWidth + 20, 64, 'clouds2').setOrigin(0).setZ(4).setDepth(2);
+		this.mountains = this.add.tileSprite(-10, gameHeight / 2 - 85, gameWidth + 20, 128, 'mountain').setOrigin(0).setZ(3).setDepth(3);
+		this.clouds1 = this.add.tileSprite(-10, 0, gameWidth + 20, 64, 'clouds1').setOrigin(0).setZ(2).setDepth(4);
 
-		this.hillsBaseY = gameHeight / 2 - 50;
-		this.hills = this.add.tileSprite(0, this.hillsBaseY, gameWidth, 64, 'hills').setOrigin(0).setZ(5).setDepth(4);
+		this.hillsBaseY = gameHeight / 2 - 40;
+		this.hills = this.add.tileSprite(-10, this.hillsBaseY, gameWidth + 10, 64, 'hills').setOrigin(0).setZ(5).setDepth(4);
 
 		this.renderer = new Renderer(this, 5);
 		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
@@ -106,6 +110,10 @@ export class GameScene extends BaseScene {
 		// tslint:disable-next-line: no-bitwise
 		this.registry.set('speed', (this.player.speed / 10) | 0);
 
+		// camera tilt
+		this.cameraAngle = Phaser.Math.Clamp(this.cameraAngle, -6, 6);
+		this.camera.setAngle(this.cameraAngle);
+
 		// this.debugText.setText(`speed: ${this.player.speed.toFixed()}
 		// position: ${this.player.trackPosition.toFixed(2)}
 		// curve: ${playerSegment.curve.toFixed(2)}
@@ -142,10 +150,13 @@ export class GameScene extends BaseScene {
 
 		if (this.cursors.left.isDown) {
 			this.player.turn -= dlt * (Math.abs(playerSegment.curve) > 0.1 ? 0.5 : 0.25);
+			this.cameraAngle += dlt;
 		} else if (this.cursors.right.isDown) {
 			this.player.turn += dlt * (Math.abs(playerSegment.curve) > 0.1 ? 0.5 : 0.25);
+			this.cameraAngle -= dlt;
 		} else {
 			this.player.turn = Math.abs(this.player.turn) < 0.01 ? 0 : Util.interpolate(this.player.turn, 0, gameSettings.turnResetMultiplier);
+			this.cameraAngle = Math.abs(this.cameraAngle) < 0.02 ? 0 : Util.interpolate(this.cameraAngle, 0, gameSettings.cameraAngleResetMultiplier);
 		}
 	}
 }

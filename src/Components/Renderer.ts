@@ -28,7 +28,7 @@ export class Renderer {
 		const h = y1 - y2;
 
 		ctx.fillStyle(colors.GRASS);
-		ctx.fillRect(0, y2, width, h);
+		ctx.fillRect(-10, y2, width, h);
 
 		Renderer.drawPolygon(ctx, x1 - w1 - r1, y1, x1 - w1, y1, x2 - w2, y2, x2 - w2 - r2, y2, colors.RUMBLE);
 		Renderer.drawPolygon(ctx, x1 + w1 + r1, y1, x1 + w1, y1, x2 + w2, y2, x2 + w2 + r2, y2, colors.RUMBLE);
@@ -62,15 +62,15 @@ export class Renderer {
 	}
 
 	public drawRoad(): void {
-		const gameWidth = this.scene.scale.gameSize.width;
-		const gameHeight = this.scene.scale.gameSize.height;
+		const gameWidth = this.scene.scale.gameSize.width + 20;
+		const gameHeight = this.scene.scale.gameSize.height + 20;
 
 		const baseSegment = this.scene.road.findSegmentByZ(this.scene.player.trackPosition);
 		const basePercent = Util.percentRemaining(this.scene.player.trackPosition, gameSettings.segmentLength);
 
 		let maxY = gameHeight; // used for clipping things behind a hill
 		let roadCenterX = 0;
-		let deltaX = - (baseSegment.curve * basePercent);
+		let deltaX = -(baseSegment.curve * basePercent);
 
 		// draw road front to back
 		for (let n = 0; n < gameSettings.drawDistance; n++) {
@@ -96,8 +96,8 @@ export class Renderer {
 			}
 
 			Renderer.drawSegment(this.roadGraphics, gameWidth, gameSettings.lanes,
-				segment.p1.screen.x, segment.p1.screen.y, segment.p1.screen.w,
-				segment.p2.screen.x, segment.p2.screen.y, segment.p2.screen.w,
+				segment.p1.screen.x - 10, segment.p1.screen.y, segment.p1.screen.w,
+				segment.p2.screen.x - 10, segment.p2.screen.y, segment.p2.screen.w,
 				segment.colors);
 
 			maxY = segment.p2.screen.y;
@@ -110,7 +110,7 @@ export class Renderer {
 
 			for (const prop of segment.props) {
 				const scale = segment.p1.screen.scale;
-				const x = segment.p1.screen.x + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
+				const x = segment.p1.screen.x - 10 + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
 				const y = segment.p1.screen.y;
 
 				prop.update(x, y, scale, segment.clip);
