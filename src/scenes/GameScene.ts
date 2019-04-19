@@ -21,6 +21,9 @@ export class GameScene extends BaseScene {
 	public clouds3: Phaser.GameObjects.TileSprite;
 	public mountains: Phaser.GameObjects.TileSprite;
 
+	public hills: Phaser.GameObjects.TileSprite;
+	public hillsBaseY: number;
+
 	public cursors: Input.Keyboard.CursorKeys;
 
 	constructor(key: string, options: any) {
@@ -28,37 +31,32 @@ export class GameScene extends BaseScene {
 	}
 
 	public create(): void {
+		this.scene.launch('RaceUiScene', {});
+
 		const gameWidth = this.scale.gameSize.width;
 		const gameHeight = this.scale.gameSize.height;
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 
-		this.road = new Road();
+		this.road = new Road(this);
 
 		this.sky = this.add.rectangle(-10, -10, gameWidth + 10, gameHeight + 10, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
-		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds').setOrigin(0).setZ(3).setTileScale(0.5, 1).setDepth(1);
-		this.clouds3 = this.add.tileSprite(0, 20, gameWidth, 64, 'clouds').setOrigin(0).setZ(4).setTileScale(1, 1.5).setDepth(2);
-		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 50, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(5).setDepth(3);
-		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds').setOrigin(0).setZ(2).setTileScale(1, 1).setDepth(4);
+		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds1').setOrigin(0).setZ(3).setTileScale(0.5, 1).setDepth(1);
+		this.clouds3 = this.add.tileSprite(0, 20, gameWidth, 64, 'clouds2').setOrigin(0).setZ(4).setDepth(2);
+		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 50, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(3).setDepth(3);
+		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds1').setOrigin(0).setZ(2).setTileScale(1, 1).setDepth(4);
+
+		this.hillsBaseY = gameHeight / 2 + 100;
+		this.hills = this.add.tileSprite(0, this.hillsBaseY, gameWidth, 149, 'hills').setOrigin(0, 1).setZ(5).setDepth(4);
 
 		this.renderer = new Renderer(this, 5);
 		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
 
-		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16).setTint(0xff0000);
+		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16).setTint(0xff0000).setDepth(200);
 
 		// reset road to empty
 		// currently creates test track
 		this.road.resetRoad();
-
-		// add some road side props
-		// offsets <-1 & >1 are outside of the road
-		for (let n = 0; n < this.road.segments.length; n += Phaser.Math.Between(1, 5)) {
-			const offset = Phaser.Math.FloatBetween(1.3, 6);
-			const negated = Math.random() - 0.5 > 0;
-			const type = Math.random() - 0.5 > 0 ? 'boulder' : 'tree';
-
-			this.road.addProp(this, n, type, negated ? -offset : offset, false);
-		}
 	}
 
 	public update(time: number, delta: number): void {
@@ -82,14 +80,7 @@ export class GameScene extends BaseScene {
 		// update bg position
 		this.updateBg(dx * playerSegment.curve);
 
-		// offroad
-		if (Math.abs(this.player.x) > 1.1 && this.player.speed > gameSettings.offRoadLimit) {
-			this.player.isOnGravel = true;
-		} else {
-			this.player.isOnGravel = false;
-		}
-
-		if (this.player.isOnGravel) {
+		if (this.player.isOnGravel && this.player.speed > gameSettings.offRoadLimit) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.offRoadDecel, delta * 0.01);
 		}
 
@@ -115,10 +106,12 @@ export class GameScene extends BaseScene {
 
 	// private ------------------------------------
 	private updateBg(offset: number): void {
-		this.clouds1.tilePositionX += 0.1 + offset * this.clouds1.z;
+		this.clouds1.tilePositionX += 0.05 + offset * this.clouds1.z;
 		this.clouds2.tilePositionX += 0.1 + offset * this.clouds2.z;
-		this.clouds3.tilePositionX += 0.1 + offset * this.clouds3.z;
+		this.clouds3.tilePositionX += 0.125 + offset * this.clouds3.z;
 		this.mountains.tilePositionX += offset * this.mountains.z;
+		this.hills.tilePositionX += offset * this.hills.z;
+		this.hills.setY(this.hillsBaseY - this.player.pitch * 20);
 	}
 
 	private handleInput(delta: number, playerSegment: TrackSegment) {

@@ -8,15 +8,16 @@ const HALFPI = Math.PI / 2;
 export class Player {
 	public position: Phaser.Math.Vector3;
 	public sprite: Phaser.GameObjects.Rectangle;
-	public scene: GameScene | Phaser.Scene;
+	public scene: GameScene;
 	public p3d: Phaser3D;
 	public model: any;
+	public smokeParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
+	public smokeEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
 
 	public turn: number;
 	public pitch: number;
 	public speed: number;
 	public trackPosition: number;
-	public isOnGravel: boolean;
 
 	private turnVector: Phaser.Math.Vector3;
 
@@ -27,8 +28,19 @@ export class Player {
 		this.pitch = 0;
 		this.speed = 0;
 		this.trackPosition = 0;
-		this.isOnGravel = false;
 		this.turnVector = new Phaser.Math.Vector3(0, 0, 0);
+
+		this.smokeParticles = this.scene.add.particles('particles').setDepth(21);
+		this.smokeEmitter = this.smokeParticles.createEmitter({
+			lifespan: 500,
+			frequency: 50,
+			frame: 0,
+			blendMode: 'NORMAL',
+			gravityY: -100,
+			speed: 0,
+			rotate: { onEmit: () => Math.random() * 359 },
+			scale: { start: 0.3, end: 2 },
+		});
 
 		this.p3d = new Phaser3D(this.scene, {fov: 45, x: 0, y: 5, z: -16, antialias: false });
 		this.p3d.view.setDepth(20);
@@ -60,6 +72,10 @@ export class Player {
 		this.position.z = z;
 	}
 
+	public get isOnGravel(): boolean {
+		return Math.abs(this.x) > 1;
+	}
+
 	public update(delta: number, dx: number) {
 		this.position.x += (this.turn * 0.08) * (this.speed / gameSettings.maxSpeed);
 
@@ -68,8 +84,6 @@ export class Player {
 			this.turnVector.x = Phaser.Math.Clamp(this.pitch, -0.3, 0.3);
 			this.model.rotation.setFromVector3(this.turnVector);
 
-			this.model.position.x = Util.interpolate(this.model.position.x, this.position.x, 0.95);
-
 			if (this.pitch > 0) {
 				this.model.position.y = Util.interpolate(this.model.position.y, -this.pitch * 3, 0.33);
 			}
@@ -77,7 +91,29 @@ export class Player {
 			if (this.speed > 20) {
 				this.model.position.y = Util.interpolate(this.model.position.y + Phaser.Math.Between(-1, 1) * (this.isOnGravel ? 0.1 : 0.01), 0, 0.2);
 			}
+
+			this.updateParticles();
+		}
+	}
+
+	public updateParticles() {
+		this.smokeEmitter.setPosition(this.scene.scale.gameSize.width / 2 + (-this.turn * 10),
+									  this.scene.scale.gameSize.height - 5 - this.pitch * 15);
+		this.smokeEmitter.setSpeed(-this.turn * 100);
+		this.smokeEmitter.setAngle(this.turn < 0 ? 0 : 180);
+
+		if (this.isOnGravel) {
+			this.smokeEmitter.setFrame(1);
+		} else {
+			this.smokeEmitter.setFrame(0);
 		}
 
+		if (this.speed > 300 && Math.abs(this.turn) > 0.66 && !this.smokeEmitter.on) {
+			this.smokeEmitter.on = true;
+		} else if (this.speed > 100 && this.isOnGravel) {
+			this.smokeEmitter.on = true;
+		} else {
+			this.smokeEmitter.stop();
+		}
 	}
 }

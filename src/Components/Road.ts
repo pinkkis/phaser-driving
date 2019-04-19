@@ -6,10 +6,12 @@ import { Prop } from './Prop';
 import { GameScene } from '../scenes/GameScene';
 
 export class Road {
+	public scene: GameScene;
 	public segments: TrackSegment[];
 	public trackLength: number;
 
-	constructor() {
+	constructor(scene: GameScene) {
+		this.scene = scene;
 		this.segments = [];
 		this.trackLength = 0;
 	}
@@ -65,8 +67,6 @@ export class Road {
 	public resetRoad(): void {
 		this.segments = [];
 
-		// this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.MEDIUM);
-		this.addHill(SEGMENT.LENGTH.SHORT, SEGMENT.HILL.MEDIUM);
 		this.addStraight(SEGMENT.LENGTH.SHORT / 2);
 		this.addCurve(SEGMENT.LENGTH.MEDIUM, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.LOW);
 		this.addHill(SEGMENT.LENGTH.LONG, SEGMENT.HILL.MEDIUM);
@@ -82,15 +82,19 @@ export class Road {
 		this.addCurve(SEGMENT.LENGTH.LONG, -SEGMENT.CURVE.EASY);
 		this.addHill(SEGMENT.LENGTH.LONG, -SEGMENT.HILL.MEDIUM);
 		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, -SEGMENT.HILL.LOW);
+
 		this.addRoad(200, 200, 200, SEGMENT.CURVE.NONE, Math.round(-this.getLastSegmentYPos() / gameSettings.segmentLength));
 
 		this.trackLength = this.segments.length * gameSettings.segmentLength;
+
+		this.createRandomProps();
+		this.createTurnSigns();
 	}
 
-	public addProp(scene: GameScene, segmentIndex: number, name: string, offset: number, collides: boolean = false): boolean {
+	public addProp(scene: GameScene, segmentIndex: number, name: string, offset: number, height: number = 0, scale: number = 3000, flipX: boolean = false, collides: boolean = false): boolean {
 		try {
 			const seg = this.segments[segmentIndex];
-			const prop = new Prop(scene, name, offset, collides);
+			const prop = new Prop(scene, name, offset, 0, scale, flipX, collides);
 			seg.props.add(prop);
 
 			return true;
@@ -107,4 +111,77 @@ export class Road {
 		});
 	}
 
+	// add some road side props
+	// offsets <-1 & >1 are outside of the road
+	public createRandomProps(): void {
+		for (let n = 0; n < this.segments.length; n += Phaser.Math.Between(1, 5)) {
+			const offset = Phaser.Math.FloatBetween(1.75, 10);
+			const negated = Math.random() - 0.5 > 0;
+
+			let type;
+			let scale = 3000;
+			switch (Phaser.Math.Between(1, 5)) {
+				case 1:
+					type = 'boulder1';
+					scale = 1500;
+					break;
+				case 2:
+					type = 'boulder2';
+					scale = 2000;
+					break;
+				case 3:
+					type = 'tree1';
+					scale = 5000;
+					break;
+				case 4:
+					type = 'tree2';
+					scale = 5500;
+					break;
+				case 5:
+					type = 'tree3';
+					scale = 5000;
+					break;
+			}
+
+			this.addProp(this.scene, n, type, negated ? -offset : offset, 0, scale, false);
+		}
+	}
+
+	public createTurnSigns(): void {
+		const signOffset = 1.75;
+		const signScale = 5000;
+
+		for (let n = 0; n < this.segments.length; n++) {
+			const segment = this.segments[n];
+			const isCurve = Math.abs(segment.curve) > 1;
+
+			if (isCurve) {
+				if (segment.curve > 0.33) {
+					this.removeProps(segment, 1, -signOffset);
+					this.addProp(this.scene, n, 'turnsign', -signOffset, 0, signScale, true, false);
+				} else {
+					this.removeProps(segment, 1, signOffset);
+					this.addProp(this.scene, n, 'turnsign', signOffset, 0, signScale, false, false);
+				}
+
+				// increment n so we don't put signs too close
+				n += 10;
+			}
+		}
+	}
+
+	public removeProps(sourceSegment: TrackSegment, breadth: number, side: number) {
+		const isLeft = side < 0;
+		const breadthSegments = this.segments.slice(sourceSegment.index - breadth, sourceSegment.index + breadth);
+
+		for (const segment of breadthSegments) {
+			if (segment.props.size) {
+				for (const prop of segment.props) {
+					if ((prop.offset < 0 && isLeft) || (prop.offset > 0 && !isLeft)) {
+						segment.props.delete(prop);
+					}
+				}
+			}
+		}
+	}
 }

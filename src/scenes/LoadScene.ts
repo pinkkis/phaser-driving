@@ -23,10 +23,19 @@ export class LoadScene extends BaseScene {
 			progress.destroy();
 		});
 
-		this.load.image('clouds', './assets/clouds.png');
+		this.load.image('clouds1', './assets/clouds.png');
+		this.load.image('clouds2', './assets/clouds2.png');
 		this.load.image('mountain', './assets/mountain.png');
-		this.load.image('boulder', './assets/boulder.png');
-		this.load.image('tree', './assets/tree.png');
+		this.load.image('hills', './assets/hills.png');
+		this.load.image('boulder1', './assets/boulder.png');
+		this.load.image('boulder2', './assets/boulder2.png');
+		this.load.image('tree1', './assets/tree.png');
+		this.load.image('tree2', './assets/tree2.png');
+		this.load.image('tree3', './assets/tree3.png');
+		this.load.image('turnsign', './assets/turn-sign.png');
+
+		this.load.spritesheet('particles', './assets/smoke-particle.png', { frameWidth: 16, frameHeight: 16 });
+
 		this.load.binary('playercar', './assets/3d/car.glb');
 	}
 

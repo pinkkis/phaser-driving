@@ -6,6 +6,7 @@ import { BootScene } from './scenes/BootScene';
 import { gameConfig } from './config/GameConfig';
 import { LoadScene } from './scenes/LoadScene';
 import { GameScene } from './scenes/GameScene';
+import { RaceUiScene } from './scenes/RaceUiScene';
 
 // set up game class, and global stuff
 export class PoisonVialGame extends Phaser.Game {
@@ -37,4 +38,5 @@ window.onload = () => {
 	game.scene.add('BootScene', BootScene, true);
 	game.scene.add('LoadScene', LoadScene, false);
 	game.scene.add('GameScene', GameScene, false);
+	game.scene.add('RaceUiScene', RaceUiScene, false);
 };
