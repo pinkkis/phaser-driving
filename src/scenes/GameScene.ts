@@ -41,13 +41,13 @@ export class GameScene extends BaseScene {
 		this.road = new Road(this);
 
 		this.sky = this.add.rectangle(-10, -10, gameWidth + 10, gameHeight + 10, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
-		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds1').setOrigin(0).setZ(3).setTileScale(0.5, 1).setDepth(1);
+		this.clouds2 = this.add.tileSprite(0, 10, gameWidth, 64, 'clouds1').setOrigin(0).setZ(3).setDepth(1);
 		this.clouds3 = this.add.tileSprite(0, 20, gameWidth, 64, 'clouds2').setOrigin(0).setZ(4).setDepth(2);
-		this.mountains = this.add.tileSprite(0, gameHeight / 2 + 50, gameWidth, 149, 'mountain').setOrigin(0, 1).setZ(3).setDepth(3);
-		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds1').setOrigin(0).setZ(2).setTileScale(1, 1).setDepth(4);
+		this.mountains = this.add.tileSprite(0, gameHeight / 2 - 85, gameWidth, 128, 'mountain').setOrigin(0).setZ(3).setDepth(3);
+		this.clouds1 = this.add.tileSprite(0, 0, gameWidth, 64, 'clouds1').setOrigin(0).setZ(2).setDepth(4);
 
-		this.hillsBaseY = gameHeight / 2 + 100;
-		this.hills = this.add.tileSprite(0, this.hillsBaseY, gameWidth, 149, 'hills').setOrigin(0, 1).setZ(5).setDepth(4);
+		this.hillsBaseY = gameHeight / 2 - 50;
+		this.hills = this.add.tileSprite(0, this.hillsBaseY, gameWidth, 64, 'hills').setOrigin(0).setZ(5).setDepth(4);
 
 		this.renderer = new Renderer(this, 5);
 		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
@@ -77,15 +77,24 @@ export class GameScene extends BaseScene {
 
 		this.player.pitch = (playerSegment.p1.world.y - playerSegment.p2.world.y) * 0.002;
 
-		// update bg position
-		this.updateBg(dx * playerSegment.curve);
-
 		if (this.player.isOnGravel && this.player.speed > gameSettings.offRoadLimit) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.offRoadDecel, delta * 0.01);
 		}
 
+		// collision check with props if outside of road
+		if (playerSegment.props.size && Math.abs(this.player.x) > 1) {
+			for (const prop of playerSegment.props) {
+				if ( Util.overlap(this.player, prop) ) {
+					this.player.trackPosition = Util.increase(playerSegment.p1.world.z, -this.player.z, this.road.trackLength);
+				}
+			}
+		}
+
 		// hide all props
 		this.road.hideAllProps();
+
+		// update parallax bg's
+		this.updateBg(dx * playerSegment.curve);
 
 		// draw road
 		this.renderer.update(time, delta);
@@ -119,9 +128,11 @@ export class GameScene extends BaseScene {
 
 		if (this.cursors.up.isDown) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.accel, dlt);
+			this.player.accelerating = true;
 		} else if (this.cursors.down.isDown) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.breaking, dlt);
 		} else {
+			this.player.accelerating = false;
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.decel, dlt);
 		}
 

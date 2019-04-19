@@ -1,11 +1,15 @@
 export const Colors = {
 	ROAD_LIGHT: new Phaser.Display.Color(127, 127, 127, 1),
 	ROAD_DARK: new Phaser.Display.Color(123, 123, 123, 1),
-	GRASS_LIGHT: new Phaser.Display.Color(63, 200, 63, 1),
-	GRASS_DARK: new Phaser.Display.Color(63, 170, 63, 1),
+
+	GRASS_LIGHT: new Phaser.Display.Color(118, 197, 120, 1),
+	GRASS_DARK: new Phaser.Display.Color(130, 211, 34, 1),
+
 	LANE_MARKER: new Phaser.Display.Color(220, 220, 220, 1),
+
 	RUMBLE_LIGHT: new Phaser.Display.Color(200, 200, 200, 1),
 	RUMBLE_DARK: new Phaser.Display.Color(177, 64, 64, 1),
+
 	SKY: new Phaser.Display.Color(127, 127, 255, 1),
 };
 

@@ -12,13 +12,15 @@ export class Player {
 	public p3d: Phaser3D;
 	public model: any;
 	public smokeParticles: Phaser.GameObjects.Particles.ParticleEmitterManager;
-	public smokeEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+	public smokeEmitterLeft: Phaser.GameObjects.Particles.ParticleEmitter;
+	public smokeEmitterRight: Phaser.GameObjects.Particles.ParticleEmitter;
 
 	public turn: number;
 	public pitch: number;
 	public speed: number;
 	public trackPosition: number;
-
+	public accelerating: boolean = false;
+	public collisionRadius: number = 20;
 	private turnVector: Phaser.Math.Vector3;
 
 	constructor(scene: GameScene, x: number, y: number, z: number, modelKey: string) {
@@ -31,22 +33,25 @@ export class Player {
 		this.turnVector = new Phaser.Math.Vector3(0, 0, 0);
 
 		this.smokeParticles = this.scene.add.particles('particles').setDepth(21);
-		this.smokeEmitter = this.smokeParticles.createEmitter({
+		const particleSettings = {
 			lifespan: 500,
-			frequency: 50,
+			frequency: 66,
 			frame: 0,
 			blendMode: 'NORMAL',
 			gravityY: -100,
 			speed: 0,
 			rotate: { onEmit: () => Math.random() * 359 },
 			scale: { start: 0.3, end: 2 },
-		});
+		};
 
-		this.p3d = new Phaser3D(this.scene, {fov: 45, x: 0, y: 5, z: -16, antialias: false });
+		this.smokeEmitterLeft = this.smokeParticles.createEmitter(particleSettings);
+		this.smokeEmitterRight = this.smokeParticles.createEmitter(particleSettings);
+
+		this.p3d = new Phaser3D(this.scene, { fov: 35, x: 0, y: 7, z: -20, antialias: false });
 		this.p3d.view.setDepth(20);
 		this.p3d.addGLTFModel(modelKey);
 
-		this.p3d.camera.lookAt(0, 5, 0);
+		this.p3d.camera.lookAt(0, 5.1, 0);
 
 		this.p3d.add.hemisphereLight({ skyColor: 0xefefff, groundColor: 0x111111, intensity: 2 });
 		this.p3d.on('loadgltf', (gltf: any, model: any) => {
@@ -97,23 +102,40 @@ export class Player {
 	}
 
 	public updateParticles() {
-		this.smokeEmitter.setPosition(this.scene.scale.gameSize.width / 2 + (-this.turn * 10),
-									  this.scene.scale.gameSize.height - 5 - this.pitch * 15);
-		this.smokeEmitter.setSpeed(-this.turn * 100);
-		this.smokeEmitter.setAngle(this.turn < 0 ? 0 : 180);
+		const particleSpeed = -this.turn * 100;
+		const particleAngle = this.turn < 0 ? { min: -30, max: 0 } : { min: 180, max: 210 };
+		const halfWidth = this.scene.scale.gameSize.width / 2;
+		const particleX = halfWidth + (-this.turn * 20);
+
+		this.smokeEmitterLeft.setPosition(particleX - 13, this.scene.scale.gameSize.height - 5 - this.pitch * 15 - (this.turn > 0 ? this.turn * 7 : 0));
+		this.smokeEmitterRight.setPosition(particleX + 13, this.scene.scale.gameSize.height - 5 - this.pitch * 15 + (this.turn < 0 ? this.turn * 7 : 0));
+
+		this.smokeEmitterLeft.setSpeed(particleSpeed);
+		this.smokeEmitterRight.setSpeed(particleSpeed);
+
+		this.smokeEmitterLeft.setAngle(particleAngle);
+		this.smokeEmitterRight.setAngle(particleAngle);
 
 		if (this.isOnGravel) {
-			this.smokeEmitter.setFrame(1);
+			this.smokeEmitterLeft.setFrame(1);
+			this.smokeEmitterRight.setFrame(1);
 		} else {
-			this.smokeEmitter.setFrame(0);
+			this.smokeEmitterLeft.setFrame(0);
+			this.smokeEmitterRight.setFrame(0);
 		}
 
-		if (this.speed > 300 && Math.abs(this.turn) > 0.66 && !this.smokeEmitter.on) {
-			this.smokeEmitter.on = true;
+		if (this.speed > 300 && Math.abs(this.turn) > 0.66 && !this.smokeEmitterLeft.on) {
+			this.smokeEmitterLeft.on = true;
+			this.smokeEmitterRight.on = true;
 		} else if (this.speed > 100 && this.isOnGravel) {
-			this.smokeEmitter.on = true;
+			this.smokeEmitterLeft.on = true;
+			this.smokeEmitterRight.on = true;
+		} else if (this.speed < 500 && this.accelerating) {
+			this.smokeEmitterLeft.on = true;
+			this.smokeEmitterRight.on = true;
 		} else {
-			this.smokeEmitter.stop();
+			this.smokeEmitterLeft.stop();
+			this.smokeEmitterRight.stop();
 		}
 	}
 }
