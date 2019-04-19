@@ -102,6 +102,10 @@ export class GameScene extends BaseScene {
 		// update player turn
 		this.player.update(delta, dx);
 
+		// update registry
+		// tslint:disable-next-line: no-bitwise
+		this.registry.set('speed', (this.player.speed / 10) | 0);
+
 		// this.debugText.setText(`speed: ${this.player.speed.toFixed()}
 		// position: ${this.player.trackPosition.toFixed(2)}
 		// curve: ${playerSegment.curve.toFixed(2)}
