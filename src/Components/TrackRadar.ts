@@ -54,14 +54,12 @@ export class TrackRadar {
 	}
 
 	public drawCar(offset: number, distance: number) {
-		const interpolatedOffset = Util.interpolate(2, 17, offset + 1);
+		const interpolatedOffset = Util.interpolate(1, 16, offset + 1);
 		const x = Phaser.Math.Clamp(interpolatedOffset, 4, 30);
 
 		const interpolatedDistance = Util.interpolate(0, 156, 1 / (distance * 0.0007));
 		const y = Phaser.Math.Clamp(interpolatedDistance, 2, 156);
 
 		this.graphics.fillStyle(0xff0000).fillRect(x, y, 3, 5);
-
-		// debugger;
 	}
 }
