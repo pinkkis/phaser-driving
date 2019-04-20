@@ -7,5 +7,8 @@ Original Assets licensed under [CC BY 4.0](https://creativecommons.org/licenses/
 
 ---
 
-Assets used
+Thanks to Jake Gordon for their blog post on javascript pseudo 3d racers
+* https://codeincomplete.com/posts/javascript-racer/
+
+Assets used:
 * Low Poly Jeep by https://sketchfab.com/BosstoneBaga - used under CC-BY license
