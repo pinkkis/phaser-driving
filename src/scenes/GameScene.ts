@@ -113,6 +113,7 @@ export class GameScene extends BaseScene {
 
 		// hide all props
 		this.road.hideAllProps();
+		this.carManager.hideAll();
 
 		// update parallax bg's
 		this.updateBg(dx * playerSegment.curve);

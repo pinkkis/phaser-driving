@@ -49,6 +49,12 @@ export class CarManager {
 		}
 	}
 
+	public hideAll(): void {
+		this.cars.forEach( (car: Car) => {
+			car.sprite.setVisible(false);
+		});
+	}
+
 	public destroy(): void {
 		this.cars.forEach( (car: Car) => car.destroy() );
 		this.cars.clear();
