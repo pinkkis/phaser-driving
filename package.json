@@ -4,7 +4,7 @@
   "description": "Outrun style driving game in Phaser 3",
   "main": "index.js",
   "scripts": {
-    "itchio": "node ./tasks/createZip.js",
+    "itchio": "npm run build && node ./tasks/createZip.js",
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "start": "cross-env NODE_ENV=development webpack-dev-server --mode development --progress --port=8000 --open"
   },
