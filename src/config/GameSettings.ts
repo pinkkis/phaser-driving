@@ -21,7 +21,7 @@ class GameSettings {
 	public maxTurn = 1;
 	public turnResetMultiplier = 0.1;
 	public cameraAngleResetMultiplier = 0.07;
-	public totalCars = 100;
+	public totalCars = 30;
 }
 
 export const gameSettings = new GameSettings();

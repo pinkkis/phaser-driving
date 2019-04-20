@@ -68,8 +68,6 @@ export class Renderer {
 		const baseSegment = this.scene.road.findSegmentByZ(this.scene.player.trackPosition);
 		const basePercent = Util.percentRemaining(this.scene.player.trackPosition, gameSettings.segmentLength);
 
-		if (!baseSegment) { debugger; }
-
 		let maxY = gameHeight; // used for clipping things behind a hill
 		let roadCenterX = 0;
 		let deltaX = -(baseSegment.curve * basePercent);

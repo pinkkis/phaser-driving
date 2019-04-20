@@ -8,6 +8,7 @@ import { Road } from '../Components/Road';
 import { Renderer } from '../Components/Renderer';
 import { TrackSegment } from '../Components/TrackSegment';
 import { CarManager } from '../Components/CarManager';
+import { Car } from '../Components/Car';
 
 export class GameScene extends BaseScene {
 	public position: number;
@@ -36,7 +37,7 @@ export class GameScene extends BaseScene {
 	}
 
 	public create(): void {
-		this.scene.launch('RaceUiScene', {});
+		this.scene.launch('RaceUiScene', this);
 
 		const gameWidth = this.scale.gameSize.width;
 		const gameHeight = this.scale.gameSize.height;
@@ -144,6 +145,23 @@ export class GameScene extends BaseScene {
 		// pitch: ${(this.player.pitch).toFixed(2)}
 		// speedX: ${(this.player.speed / gameSettings.maxSpeed).toFixed(3)}
 		// dx: ${dx.toFixed(3)}`);
+	}
+
+	public getRadarCars(length: number): Car[] {
+		const cars: Car[] = [];
+
+		const baseSegment = this.road.findSegmentByZ(this.player.trackPosition);
+
+		for (let n = 0; n < length; n++) {
+			const segmentIndex = (baseSegment.index + n) % this.road.segments.length;
+			const segment = this.road.segments[segmentIndex];
+
+			for (const car of segment.cars) {
+				cars.push(car);
+			}
+		}
+
+		return cars;
 	}
 
 	// private ------------------------------------

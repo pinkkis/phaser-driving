@@ -1,6 +1,7 @@
 import { BaseScene } from './BaseScene';
 import { SpeedGauge } from '../Components/SpeedGauge';
 import { TrackRadar } from '../Components/TrackRadar';
+import { GameScene } from './GameScene';
 
 export class RaceUiScene extends BaseScene {
 	public timerText: Phaser.GameObjects.BitmapText;
@@ -8,6 +9,7 @@ export class RaceUiScene extends BaseScene {
 	public timeSmallText: Phaser.GameObjects.BitmapText;
 	public speedGauge: SpeedGauge;
 	public trackRadar: TrackRadar;
+	public gameScene: GameScene;
 
 	public timer: Phaser.Tweens.Tween;
 
@@ -15,7 +17,8 @@ export class RaceUiScene extends BaseScene {
 		super('RaceUiScene');
 	}
 
-	public create(): void {
+	public create(gameScene: GameScene): void {
+		this.gameScene = gameScene;
 		this.timerText = this.add.bitmapText(this.scale.gameSize.width / 2 + 14, 5, 'retro', 'time', 8).setOrigin(0, 0);
 		this.timeLargeText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 15, 'retro', '000', 16).setOrigin(1, 0).setTint(0xff0000);
 		this.timeSmallText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 16, 'retro', '000', 8).setOrigin(0, 0).setTint(0xff0000);
@@ -36,6 +39,12 @@ export class RaceUiScene extends BaseScene {
 		const timerValue = this.timer.getValue().toFixed(2).split('.');
 		this.timeLargeText.setText(timerValue[0]);
 		this.timeSmallText.setText(timerValue[1]);
+
+		this.trackRadar.update();
+		const radarCars = this.gameScene.getRadarCars(700);
+		for (const car of radarCars) {
+			this.trackRadar.drawCar(car.offset, car.trackPosition - this.gameScene.player.trackPosition);
+		}
 	}
 
 	public destroy(): void {
@@ -58,6 +67,5 @@ export class RaceUiScene extends BaseScene {
 			}
 		}, this);
 	}
-
 
 }
