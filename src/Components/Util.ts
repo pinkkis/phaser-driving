@@ -58,12 +58,19 @@ export class Util {
 		return Util.toInt(def, 0);
 	}
 
-	public static overlap(player: Player, target: Prop|Car): boolean {
+	public static overlapPlayer(player: Player, target: Prop|Car): boolean {
 		const playerCenter = player.scene.scale.gameSize.width / 2;
 		const rect = new Phaser.Geom.Rectangle();
 		const overlaps = target.sprite.getBounds(rect).contains(playerCenter - player.collisionRadius, 150)
 					  || target.sprite.getBounds(rect).contains(playerCenter + player.collisionRadius, 150);
 
 		return overlaps;
+	}
+
+	public static overlapSprite(a: Phaser.GameObjects.Sprite, b: Phaser.GameObjects.Sprite): boolean {
+		const aBounds = a.getBounds();
+		const bBounds = b.getBounds();
+
+		return Phaser.Geom.Rectangle.Overlaps(aBounds, bBounds);
 	}
 }

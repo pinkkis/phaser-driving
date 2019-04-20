@@ -67,7 +67,7 @@ export class Road {
 	public resetRoad(): void {
 		this.segments = [];
 
-		this.addStraight(SEGMENT.LENGTH.SHORT / 2);
+		this.addStraight(SEGMENT.LENGTH.LONG);
 		this.addCurve(SEGMENT.LENGTH.MEDIUM, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.LOW);
 		this.addHill(SEGMENT.LENGTH.LONG, SEGMENT.HILL.MEDIUM);
 		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM);

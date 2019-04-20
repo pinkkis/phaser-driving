@@ -94,9 +94,9 @@ export class GameScene extends BaseScene {
 		// collision check with props if outside of road
 		if (playerSegment.props.size && Math.abs(this.player.x) > 1) {
 			for (const prop of playerSegment.props) {
-				if ( Util.overlap(this.player, prop) ) {
+				if ( Util.overlapPlayer(this.player, prop) ) {
 					this.player.trackPosition = Util.increase(playerSegment.p1.world.z, -this.player.z, this.road.trackLength);
-					this.player.speed = this.player.speed > 10 ? 10 : this.player.speed;
+					this.player.speed = this.player.speed > 50 ? 50 : this.player.speed;
 				}
 			}
 		}
@@ -104,15 +104,12 @@ export class GameScene extends BaseScene {
 		// collision check with cars if on road
 		if (playerSegment.cars.size && Math.abs(this.player.x) < 1) {
 			for (const car of playerSegment.cars) {
-				if ( Util.overlap(this.player, car) ) {
+				if ( Util.overlapPlayer(this.player, car) ) {
 					this.player.trackPosition = Util.increase(car.trackPosition, -this.player.z, this.road.trackLength);
 					this.player.speed = this.player.speed / 2;
 				}
 			}
 		}
-
-		// update other cars on track
-		this.carManager.update(dlt, playerSegment, this.player.x);
 
 		// hide all props
 		this.road.hideAllProps();
@@ -122,6 +119,9 @@ export class GameScene extends BaseScene {
 
 		// draw road
 		this.renderer.update(time, delta);
+
+		// update other cars on track
+		this.carManager.update(dlt, playerSegment, this.player.x);
 
 		// update player turn
 		this.player.update(delta, dx);
