@@ -61,7 +61,7 @@ export class CarManager {
 	}
 
 	private getRandomCarType(): string {
-		const availableSprites = ['car-army', 'car-yellow', 'car-red', 'car-green'];
+		const availableSprites = ['car-army', 'car-yellow', 'car-red', 'car-green', 'car-blue'];
 		const rndIndex = Phaser.Math.Between(0, availableSprites.length - 1);
 
 		return availableSprites[rndIndex];
