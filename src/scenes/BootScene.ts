@@ -14,6 +14,7 @@ export class BootScene extends BaseScene {
 		this.registry.set('racetime', 0);
 		this.registry.set('trackposition', 0);
 		this.registry.set('raceposition', 0);
+		this.registry.set('playerx', 0);
 
 		this.scene.start('LoadScene', {});
 	}

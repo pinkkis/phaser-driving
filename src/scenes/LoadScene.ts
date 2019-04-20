@@ -36,6 +36,11 @@ export class LoadScene extends BaseScene {
 
 		this.load.spritesheet('particles', './assets/smoke-particle.png', { frameWidth: 16, frameHeight: 16 });
 
+		this.load.spritesheet('car-green', './assets/car-green.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-army', './assets/car-army.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-red', './assets/car-red.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-yellow', './assets/car-yellow.png', { frameWidth: 64, frameHeight: 64 });
+
 		this.load.binary('playercar', './assets/3d/car.glb');
 	}
 

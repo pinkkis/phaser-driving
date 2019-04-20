@@ -34,6 +34,8 @@ export class Player {
 
 		this.smokeParticles = this.scene.add.particles('particles').setDepth(21);
 		const particleSettings = {
+			x: -100,
+			y: -100,
 			lifespan: 500,
 			frequency: 66,
 			frame: 0,
@@ -65,6 +67,7 @@ export class Player {
 	public get x(): number { return this.position.x; }
 	public set x(x: number) {
 		this.position.x = x;
+		this.scene.registry.set('playerx', x);
 	}
 
 	public get y(): number { return this.position.y; }

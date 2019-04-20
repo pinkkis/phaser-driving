@@ -68,6 +68,8 @@ export class Renderer {
 		const baseSegment = this.scene.road.findSegmentByZ(this.scene.player.trackPosition);
 		const basePercent = Util.percentRemaining(this.scene.player.trackPosition, gameSettings.segmentLength);
 
+		if (!baseSegment) { debugger; }
+
 		let maxY = gameHeight; // used for clipping things behind a hill
 		let roadCenterX = 0;
 		let deltaX = -(baseSegment.curve * basePercent);
@@ -103,17 +105,23 @@ export class Renderer {
 			maxY = segment.p2.screen.y;
 		}
 
-		// draw props back to front
-		for (let n = gameSettings.drawDistance - 1; n > 0; n--) {
+		// draw props and cars back to front
+		for (let n = gameSettings.drawDistance; n > 0; n--) {
 			const segmentIndex = (baseSegment.index + n) % this.scene.road.segments.length;
 			const segment = this.scene.road.segments[segmentIndex];
 
-			for (const prop of segment.props) {
-				const scale = segment.p1.screen.scale;
-				const x = segment.p1.screen.x - 10 + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
-				const y = segment.p1.screen.y;
+			const scale = segment.p1.screen.scale;
 
-				prop.update(x, y, scale, segment.clip);
+			for (const prop of segment.props) {
+				const x = segment.p1.screen.x - 10 + (scale * prop.offset * gameSettings.roadWidth * gameWidth / 2);
+				prop.update(x, segment.p1.screen.y, scale, segment.clip);
+			}
+
+			for (const car of segment.cars) {
+				const spriteScale = Util.interpolate(segment.p1.screen.scale, segment.p2.screen.scale, car.percent);
+				const spriteX = Util.interpolate(segment.p1.screen.x - 10, segment.p2.screen.x - 10, car.percent) + (spriteScale * car.offset * gameSettings.roadWidth * gameWidth / 2);
+				const spriteY = Util.interpolate(segment.p1.screen.y, segment.p2.screen.y, car.percent);
+				car.draw(spriteX, spriteY, spriteScale, segment.clip);
 			}
 		}
 	}

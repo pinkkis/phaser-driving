@@ -2,6 +2,7 @@ import { SegmentPoint } from './SegmentPoint';
 import { gameSettings } from '../config/GameSettings';
 import { DarkColors, LightColors } from './Colors';
 import { Prop } from './Prop';
+import { Car } from './Car';
 
 export class TrackSegment {
 	public index: number;
@@ -12,7 +13,7 @@ export class TrackSegment {
 	public curve: number;
 	public colors: any;
 	public props: Set<Prop>;
-	public cars: Set<any>;
+	public cars: Set<Car>;
 	public clip: number;
 
 	constructor(z: number, curve: number, y: number, lastY: number) {

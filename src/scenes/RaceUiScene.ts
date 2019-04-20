@@ -21,7 +21,7 @@ export class RaceUiScene extends BaseScene {
 		this.timeSmallText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 16, 'retro', '000', 8).setOrigin(0, 0).setTint(0xff0000);
 
 		this.speedGauge = new SpeedGauge(this, 60, 60, 50);
-		this.trackRadar = new TrackRadar(this, this.scale.gameSize.width - 40, 30);
+		this.trackRadar = new TrackRadar(this, this.scale.gameSize.width - 40, 10);
 
 		this.timer = this.tweens.addCounter({
 			from: 180,
@@ -48,6 +48,11 @@ export class RaceUiScene extends BaseScene {
 				case 'speed':
 					this.speedGauge.speed = data;
 					break;
+
+				case 'playerx':
+					this.trackRadar.updatePlayerX(data);
+					break;
+
 				default:
 					console.warn('unknown registry change');
 			}

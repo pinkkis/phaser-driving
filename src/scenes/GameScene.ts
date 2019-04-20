@@ -7,12 +7,14 @@ import { Player } from '../Components/Player';
 import { Road } from '../Components/Road';
 import { Renderer } from '../Components/Renderer';
 import { TrackSegment } from '../Components/TrackSegment';
+import { CarManager } from '../Components/CarManager';
 
 export class GameScene extends BaseScene {
 	public position: number;
 	public player: Player;
 	public road: Road;
 	public renderer: Renderer;
+	public carManager: CarManager;
 
 	public debugText: Phaser.GameObjects.BitmapText;
 	public sky: Phaser.GameObjects.Rectangle;
@@ -43,6 +45,7 @@ export class GameScene extends BaseScene {
 		this.camera = this.cameras.main;
 
 		this.road = new Road(this);
+		this.carManager = new CarManager(this, this.road);
 
 		this.sky = this.add.rectangle(-10, -20, gameWidth + 20, gameHeight + 30, Colors.SKY.color).setOrigin(0).setZ(0).setDepth(0);
 		this.clouds2 = this.add.tileSprite(-10, 10, gameWidth + 20, 64, 'clouds1').setOrigin(0).setZ(3).setDepth(1);
@@ -61,13 +64,16 @@ export class GameScene extends BaseScene {
 		// reset road to empty
 		// currently creates test track
 		this.road.resetRoad();
+		this.carManager.resetCars();
 	}
 
 	public update(time: number, delta: number): void {
+		const dlt = delta * 0.01;
+
 		const playerSegment = this.road.findSegmentByZ(this.player.trackPosition + this.player.z);
 		const playerPercent = Util.percentRemaining(this.player.trackPosition + this.player.z, gameSettings.segmentLength);
 		const speedMultiplier = this.player.speed / gameSettings.maxSpeed;
-		const dx = this.player.speed <= 0 ? 0 : delta * 0.01 * speedMultiplier;
+		const dx = this.player.speed <= 0 ? 0 : dlt * speedMultiplier;
 
 		this.handleInput(delta, playerSegment);
 
@@ -77,12 +83,12 @@ export class GameScene extends BaseScene {
 		this.player.speed = Phaser.Math.Clamp(this.player.speed, 0, gameSettings.maxSpeed);
 		this.player.x = Phaser.Math.Clamp(this.player.x, -gameSettings.roadWidthClamp, gameSettings.roadWidthClamp);
 		this.player.turn = Phaser.Math.Clamp(this.player.turn, -gameSettings.maxTurn, gameSettings.maxTurn);
-		this.player.trackPosition = Util.increase(this.player.trackPosition, (delta * 0.01) * this.player.speed, this.road.trackLength);
+		this.player.trackPosition = Util.increase(this.player.trackPosition, dlt * this.player.speed, this.road.trackLength);
 
 		this.player.pitch = (playerSegment.p1.world.y - playerSegment.p2.world.y) * 0.002;
 
 		if (this.player.isOnGravel && this.player.speed > gameSettings.offRoadLimit) {
-			this.player.speed = Util.accelerate(this.player.speed, gameSettings.offRoadDecel, delta * 0.01);
+			this.player.speed = Util.accelerate(this.player.speed, gameSettings.offRoadDecel, dlt);
 		}
 
 		// collision check with props if outside of road
@@ -90,9 +96,23 @@ export class GameScene extends BaseScene {
 			for (const prop of playerSegment.props) {
 				if ( Util.overlap(this.player, prop) ) {
 					this.player.trackPosition = Util.increase(playerSegment.p1.world.z, -this.player.z, this.road.trackLength);
+					this.player.speed = this.player.speed > 10 ? 10 : this.player.speed;
 				}
 			}
 		}
+
+		// collision check with cars if on road
+		if (playerSegment.cars.size && Math.abs(this.player.x) < 1) {
+			for (const car of playerSegment.cars) {
+				if ( Util.overlap(this.player, car) ) {
+					this.player.trackPosition = Util.increase(car.trackPosition, -this.player.z, this.road.trackLength);
+					this.player.speed = this.player.speed / 2;
+				}
+			}
+		}
+
+		// update other cars on track
+		this.carManager.update(dlt, playerSegment, this.player.x);
 
 		// hide all props
 		this.road.hideAllProps();
