@@ -6,7 +6,7 @@ export class BootScene extends BaseScene {
 	}
 
 	public preload(): void {
-		this.load.bitmapFont('retro', './assets/cosmicavenger.png', './assets/cosmicavenger.xml');
+		this.load.bitmapFont('retro', './assets/fonts/cosmicavenger.png', './assets/fonts/cosmicavenger.xml');
 	}
 
 	public create(): void {

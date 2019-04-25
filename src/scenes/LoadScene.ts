@@ -40,8 +40,14 @@ export class LoadScene extends BaseScene {
 		this.load.spritesheet('car-army', './assets/car-army.png', { frameWidth: 64, frameHeight: 64 });
 		this.load.spritesheet('car-red', './assets/car-red.png', { frameWidth: 64, frameHeight: 64 });
 		this.load.spritesheet('car-yellow', './assets/car-yellow.png', { frameWidth: 64, frameHeight: 64 });
+		this.load.spritesheet('car-blue', './assets/car-blue.png', { frameWidth: 64, frameHeight: 64 });
 
 		this.load.binary('playercar', './assets/3d/car.glb');
+
+		this.load.audio('engine', ['./assets/sound/engine-loop.wav']);
+
+		this.load.bitmapFont('numbers', './assets/fonts/number-font.png', './assets/fonts/number-font.xml');
+		this.load.bitmapFont('impact', './assets/fonts/impact-24-outline.png', './assets/fonts/impact-24-outline.xml');
 	}
 
 	public create(): void {
