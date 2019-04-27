@@ -15,6 +15,11 @@ export class Player {
 	public smokeEmitterLeft: Phaser.GameObjects.Particles.ParticleEmitter;
 	public smokeEmitterRight: Phaser.GameObjects.Particles.ParticleEmitter;
 
+	public engineSound: Phaser.Sound.WebAudioSound;
+	public tireScreechSound: Phaser.Sound.WebAudioSound;
+	public explosionSound: Phaser.Sound.WebAudioSound;
+	public collideSound: Phaser.Sound.WebAudioSound;
+
 	public turn: number;
 	public pitch: number;
 	public speed: number;
@@ -45,6 +50,13 @@ export class Player {
 			rotate: { onEmit: () => Math.random() * 359 },
 			scale: { start: 0.3, end: 2 },
 		};
+
+		this.engineSound = this.scene.sound.add('engine', { volume: 0.7, loop: true }) as Phaser.Sound.WebAudioSound;
+		this.engineSound.play();
+
+		this.tireScreechSound = this.scene.sound.add('tire-squeal', { volume: 0.5, loop: true}) as Phaser.Sound.WebAudioSound;
+		this.explosionSound = this.scene.sound.add('explosion', { volume: 0.75 }) as Phaser.Sound.WebAudioSound;
+		this.collideSound = this.scene.sound.add('collision', { volume: 0.75 }) as Phaser.Sound.WebAudioSound;
 
 		this.smokeEmitterLeft = this.smokeParticles.createEmitter(particleSettings);
 		this.smokeEmitterRight = this.smokeParticles.createEmitter(particleSettings);
@@ -102,6 +114,44 @@ export class Player {
 			}
 
 			this.updateParticles();
+
+			this.playEngineSound();
+		}
+	}
+
+	public playEngineSound(): void {
+		if (this.speed > 0 && this.engineSound.isPlaying) {
+			this.engineSound.setDetune( this.speed * 1.25 );
+			this.engineSound.setVolume( 0.7 + Phaser.Math.Clamp(this.speed * 0.0001, 0, 0.2) );
+		}
+	}
+
+	public tireScreech(play = false): void {
+		if (play && !this.tireScreechSound.isPlaying) {
+			this.tireScreechSound.play();
+		} else {
+			this.tireScreechSound.stop();
+		}
+	}
+
+	public collide(type: string): void {
+		switch (type) {
+			case 'car':
+				if (!this.collideSound.isPlaying) {
+					this.collideSound.play();
+				}
+				break;
+
+			case 'prop':
+				if (!this.explosionSound.isPlaying && this.speed > 700) {
+					this.explosionSound.play();
+				} else if (!this.collideSound.isPlaying && this.speed > 200) {
+					this.collideSound.play();
+				}
+				break;
+
+			default:
+				break;
 		}
 	}
 
@@ -131,15 +181,19 @@ export class Player {
 		if (this.speed > 300 && Math.abs(this.turn) > 0.66 && !this.smokeEmitterLeft.on) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
+			this.tireScreech(true);
 		} else if (this.speed > 100 && this.isOnGravel) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
-		} else if (this.speed < 500 && this.accelerating) {
+			this.tireScreech(false);
+		} else if (this.speed < 400 && this.accelerating) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
+			this.tireScreech(true);
 		} else {
 			this.smokeEmitterLeft.stop();
 			this.smokeEmitterRight.stop();
+			this.tireScreech(false);
 		}
 	}
 }

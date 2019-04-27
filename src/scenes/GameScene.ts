@@ -66,6 +66,9 @@ export class GameScene extends BaseScene {
 		// currently creates test track
 		this.road.resetRoad();
 		this.carManager.resetCars();
+
+		this.pasuuna.loadSongFromCache('dream-candy', true);
+		this.pasuuna.setVolume(0.70);
 	}
 
 	public update(time: number, delta: number): void {
@@ -96,6 +99,7 @@ export class GameScene extends BaseScene {
 		if (playerSegment.props.size && Math.abs(this.player.x) > 1) {
 			for (const prop of playerSegment.props) {
 				if ( Util.overlapPlayer(this.player, prop) ) {
+					this.player.collide('prop');
 					this.player.trackPosition = Util.increase(playerSegment.p1.world.z, -this.player.z, this.road.trackLength);
 					this.player.speed = this.player.speed > 50 ? 50 : this.player.speed;
 				}
@@ -106,6 +110,7 @@ export class GameScene extends BaseScene {
 		if (playerSegment.cars.size && Math.abs(this.player.x) < 1) {
 			for (const car of playerSegment.cars) {
 				if ( Util.overlapPlayer(this.player, car) ) {
+					this.player.collide('car');
 					this.player.trackPosition = Util.increase(car.trackPosition, -this.player.z, this.road.trackLength);
 					this.player.speed = this.player.speed / 2;
 				}
@@ -129,8 +134,7 @@ export class GameScene extends BaseScene {
 		this.player.update(delta, dx);
 
 		// update registry
-		// tslint:disable-next-line: no-bitwise
-		this.registry.set('speed', (this.player.speed / 10) | 0);
+		this.registry.set('speed', Math.floor(this.player.speed / 10));
 
 		// camera tilt
 		this.cameraAngle = Phaser.Math.Clamp(this.cameraAngle, -6, 6);
