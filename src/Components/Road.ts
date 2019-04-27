@@ -94,7 +94,7 @@ export class Road {
 	public addProp(scene: GameScene, segmentIndex: number, name: string, offset: number, height: number = 0, scale: number = 3000, flipX: boolean = false, collides: boolean = false): boolean {
 		try {
 			const seg = this.segments[segmentIndex];
-			const prop = new Prop(scene, name, offset, 0, scale, flipX, collides);
+			const prop = new Prop(scene, name, offset, height, scale, flipX, collides);
 			seg.props.add(prop);
 
 			return true;

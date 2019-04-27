@@ -45,6 +45,14 @@ export class LoadScene extends BaseScene {
 		this.load.binary('playercar', './assets/3d/car.glb');
 
 		this.load.audio('engine', ['./assets/sound/engine-loop.wav']);
+		this.load.audio('tire-squeal', ['./assets/sound/tire-squeal.wav']);
+		this.load.audio('collision', ['./assets/sound/car-collision.wav']);
+		this.load.audio('confirm', ['./assets/sound/confirm.wav']);
+		this.load.audio('explosion', ['./assets/sound/explosion.wav']);
+		this.load.audio('select', ['./assets/sound/select.wav']);
+		this.load.audio('time-extended', ['./assets/sound/time-extended.wav']);
+
+		this.load.binary('dream-candy', './assets/sound/drozerix_-_dream_candy.xm');
 
 		this.load.bitmapFont('numbers', './assets/fonts/number-font.png', './assets/fonts/number-font.xml');
 		this.load.bitmapFont('impact', './assets/fonts/impact-24-outline.png', './assets/fonts/impact-24-outline.xml');

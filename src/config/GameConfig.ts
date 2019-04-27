@@ -1,3 +1,5 @@
+import { PasuunaPlugin } from '@pinkkis/phaser-plugin-pasuuna';
+
 // phaser game config
 export const gameConfig: GameConfig = {
 	type: Phaser.AUTO,
@@ -12,6 +14,13 @@ export const gameConfig: GameConfig = {
 		pixelArt: true,
 	},
 	plugins: {
-		global: [] as any[],
+		global: [
+			{
+				key: 'PasuunaPlayerPlugin',
+				plugin: PasuunaPlugin,
+				start: true,
+				mapping: 'pasuuna',
+			},
+		] as any[],
 	},
 };

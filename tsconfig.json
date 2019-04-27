@@ -5,7 +5,8 @@
 		"module": "esnext",
 		"target": "esnext",
 		"allowJs": true,
-		"sourceMap": true
+		"sourceMap": true,
+		"moduleResolution": "node",
 	},
 	"exclude": [
 		"node_modules",
