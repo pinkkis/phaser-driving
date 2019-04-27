@@ -20,7 +20,7 @@ export class SpeedGauge {
 
 		this.graphics = this.scene.add.graphics();
 		this.speedText = this.scene.add.bitmapText(x + 35, y - 15, 'numbers', this.speedValue.toString(), 48).setOrigin(1, 0.5);
-		this.scene.add.bitmapText(x - 58, y - 4, 'impact', `kmh`, 12).setTint(0xffff00);
+		this.scene.add.bitmapText(x - 58, y - 8, 'impact', `kmh`, 12).setTint(0xffff00);
 
 		this.update();
 	}

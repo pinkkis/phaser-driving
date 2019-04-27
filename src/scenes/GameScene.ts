@@ -58,7 +58,7 @@ export class GameScene extends BaseScene {
 		this.hills = this.add.tileSprite(-10, this.hillsBaseY, gameWidth + 10, 64, 'hills').setOrigin(0).setZ(5).setDepth(4);
 
 		this.renderer = new Renderer(this, 5);
-		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth, 'playercar');
+		this.player = new Player(this, 0, gameHeight - 5, gameSettings.cameraHeight * gameSettings.cameraDepth + 300, 'playercar'); // player z helps with collision distances
 
 		this.debugText = this.add.bitmapText(5, 5, 'retro', '', 16).setTint(0xff0000).setDepth(200);
 
@@ -182,13 +182,17 @@ export class GameScene extends BaseScene {
 		const dlt = delta * 0.01;
 
 		if (this.cursors.up.isDown) {
-			this.player.speed = Util.accelerate(this.player.speed, gameSettings.accel, dlt);
+			this.player.speed = Util.accelerate(this.player.speed, Util.interpolate(gameSettings.accel, 0, Util.percentRemaining(this.player.speed, gameSettings.maxSpeed) ), dlt);
 			this.player.accelerating = true;
 		} else if (this.cursors.down.isDown) {
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.breaking, dlt);
 		} else {
 			this.player.accelerating = false;
 			this.player.speed = Util.accelerate(this.player.speed, gameSettings.decel, dlt);
+		}
+
+		if (this.player.speed > 500 && this.player.screeching) {
+			this.player.speed = Util.accelerate(this.player.speed, gameSettings.screechDecel, dlt);
 		}
 
 		if (this.cursors.left.isDown) {

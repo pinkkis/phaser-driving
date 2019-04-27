@@ -25,6 +25,7 @@ export class Player {
 	public speed: number;
 	public trackPosition: number;
 	public accelerating: boolean = false;
+	public screeching: boolean = false;
 	public collisionRadius: number = 20;
 	private turnVector: Phaser.Math.Vector3;
 
@@ -116,6 +117,7 @@ export class Player {
 			this.updateParticles();
 
 			this.playEngineSound();
+			this.tireScreech(this.screeching);
 		}
 	}
 
@@ -181,19 +183,19 @@ export class Player {
 		if (this.speed > 300 && Math.abs(this.turn) > 0.66 && !this.smokeEmitterLeft.on) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
-			this.tireScreech(true);
+			this.screeching = true;
 		} else if (this.speed > 100 && this.isOnGravel) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
-			this.tireScreech(false);
+			this.screeching = false;
 		} else if (this.speed < 400 && this.accelerating) {
 			this.smokeEmitterLeft.on = true;
 			this.smokeEmitterRight.on = true;
-			this.tireScreech(true);
+			this.screeching = true;
 		} else {
 			this.smokeEmitterLeft.stop();
 			this.smokeEmitterRight.stop();
-			this.tireScreech(false);
+			this.screeching = false;
 		}
 	}
 }

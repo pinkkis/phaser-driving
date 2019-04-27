@@ -10,13 +10,14 @@ class GameSettings {
 	public projectYCompensation = 30;
 	public drawDistance = 500;
 	public fogDensity = 5;
-	public maxSpeed = this.segmentLength * 8;
+	public maxSpeed = this.segmentLength * 9;
 	public accel = this.maxSpeed / 50;
 	public decel = -this.maxSpeed / 70;
+	public screechDecel = -this.maxSpeed / 100;
 	public breaking = -this.maxSpeed / 20;
 	public offRoadDecel = -this.maxSpeed / 10;
 	public offRoadLimit = this.maxSpeed / 4;
-	public centrifugal = 0.175;
+	public centrifugal = 0.2;
 	public steerCompensation = 0.5;
 	public maxTurn = 1;
 	public turnResetMultiplier = 0.1;

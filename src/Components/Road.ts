@@ -24,11 +24,11 @@ export class Road {
 		this.addRoad(num, num, num, 0, 0);
 	}
 
-	public addCurve(num: number = SEGMENT.LENGTH.MEDIUM, curve: number = SEGMENT.CURVE.MEDIUM, height: number = 0): void {
+	public addCurve(num: number = SEGMENT.LENGTH.MEDIUM, curve: number = SEGMENT.CURVE.MEDIUM, height: number = SEGMENT.HILL.NONE): void {
 		this.addRoad(num, num, num, curve, height);
 	}
 
-	public addHill(num: number = SEGMENT.LENGTH.MEDIUM, height: number = 0): void {
+	public addHill(num: number = SEGMENT.LENGTH.MEDIUM, height: number = SEGMENT.HILL.NONE): void {
 		this.addRoad(num, num, num, 0, height);
 	}
 
@@ -67,16 +67,24 @@ export class Road {
 	public resetRoad(): void {
 		this.segments = [];
 
-		this.addStraight(SEGMENT.LENGTH.LONG);
+		this.addStraight(SEGMENT.LENGTH.MEDIUM);
 		this.addCurve(SEGMENT.LENGTH.MEDIUM, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.LOW);
-		this.addHill(SEGMENT.LENGTH.LONG, SEGMENT.HILL.MEDIUM);
-		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM);
+		this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.LOW);
+		this.addHill(SEGMENT.LENGTH.SHORT, SEGMENT.HILL.LOW);
+		this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.LOW);
+		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.MEDIUM);
+		this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.LOW);
+		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM, -SEGMENT.HILL.MEDIUM);
+		this.addCurve(SEGMENT.LENGTH.LONG, -SEGMENT.CURVE.MINIMAL, SEGMENT.HILL.HIGH);
+		this.addStraight(SEGMENT.LENGTH.SHORT);
+		this.addCurve(SEGMENT.LENGTH.VERYLONG, SEGMENT.CURVE.MINIMAL);
 		this.addHill(SEGMENT.LENGTH.SHORT, -SEGMENT.HILL.MEDIUM);
+		this.addStraight(SEGMENT.LENGTH.SHORT);
 		this.addHill(SEGMENT.LENGTH.MEDIUM, SEGMENT.HILL.HIGH);
-		this.addStraight();
 		this.addCurve(SEGMENT.LENGTH.SHORT, SEGMENT.CURVE.MEDIUM, SEGMENT.HILL.LOW);
 		this.addHill(SEGMENT.LENGTH.LONG, -SEGMENT.HILL.HIGH);
 		this.addCurve(SEGMENT.LENGTH.LONG, -SEGMENT.CURVE.MEDIUM);
+		this.addStraight();
 		this.addCurve(SEGMENT.LENGTH.LONG, SEGMENT.CURVE.MEDIUM);
 		this.addStraight();
 		this.addCurve(SEGMENT.LENGTH.LONG, -SEGMENT.CURVE.EASY);

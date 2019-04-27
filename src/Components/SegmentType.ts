@@ -4,9 +4,11 @@ export const SEGMENT = {
 		SHORT: 25,
 		MEDIUM: 50,
 		LONG: 100,
+		VERYLONG: 200,
 	},
 	CURVE: {
 		NONE: 0,
+		MINIMAL: 1,
 		EASY: 2,
 		MEDIUM: 4,
 		HARD: 6,
