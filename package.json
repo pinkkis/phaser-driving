@@ -33,6 +33,7 @@
     "@babel/preset-env": "^7.4.2",
     "@babel/preset-typescript": "^7.3.3",
     "@csstools/normalize.css": "^9.0.1",
+    "@pinkkis/phaser-plugin-pasuuna": "^0.5.2",
     "archiver": "^3.0.0",
     "babel-loader": "^8.0.5",
     "babel-plugin-transform-remove-console": "^6.9.4",
