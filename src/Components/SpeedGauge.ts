@@ -19,8 +19,8 @@ export class SpeedGauge {
 		this.radius = radius;
 
 		this.graphics = this.scene.add.graphics();
-		this.speedText = this.scene.add.bitmapText(x + 60, y - 17, 'retro', this.speedValue.toString(), 32).setOrigin(1, 0.5).setTint(0x0000ff);
-		this.scene.add.bitmapText(x - 12, y - 40, 'retro', `kmh`, 8).setTint(0x0000ff);
+		this.speedText = this.scene.add.bitmapText(x + 35, y - 15, 'numbers', this.speedValue.toString(), 48).setOrigin(1, 0.5);
+		this.scene.add.bitmapText(x - 58, y - 4, 'impact', `kmh`, 12).setTint(0xffff00);
 
 		this.update();
 	}

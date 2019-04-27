@@ -19,9 +19,9 @@ export class RaceUiScene extends BaseScene {
 
 	public create(gameScene: GameScene): void {
 		this.gameScene = gameScene;
-		this.timerText = this.add.bitmapText(this.scale.gameSize.width / 2 + 14, 5, 'retro', 'time', 8).setOrigin(0, 0);
-		this.timeLargeText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 15, 'retro', '000', 16).setOrigin(1, 0).setTint(0xff0000);
-		this.timeSmallText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 16, 'retro', '000', 8).setOrigin(0, 0).setTint(0xff0000);
+		this.timeLargeText = this.add.bitmapText(this.scale.gameSize.width / 2 + 30, 5, 'numbers', '000', 32).setOrigin(1, 0).setTint(0xffcccc);
+		this.timeSmallText = this.add.bitmapText(this.scale.gameSize.width / 2 + 33, 8, 'numbers', '000', 16).setOrigin(0, 0).setTint(0xffcccc);
+		this.timerText = this.add.bitmapText(this.scale.gameSize.width / 2 + 54, 8, 'impact', 'time', 16).setOrigin(0, 0);
 
 		this.speedGauge = new SpeedGauge(this, 60, 60, 50);
 		this.trackRadar = new TrackRadar(this, this.scale.gameSize.width - 40, 10);
