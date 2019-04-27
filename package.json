@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/pinkkis/phaser-driver.git"
   },
-  "keywords": [],
+  "keywords": ["phaser", "game", "driving", "outrun"],
   "author": "Kristian Koivisto-Kokko <pinkkis@gmail.com> (http://pinkkis.com/)",
   "license": "MIT",
   "licenses": [
