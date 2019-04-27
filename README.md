@@ -14,5 +14,4 @@ Thanks to Jake Gordon for their blog post on javascript pseudo 3d racers
 
 Assets used:
 * Low Poly Jeep by https://sketchfab.com/BosstoneBaga - used under CC-BY license
-* Engine loop from https://opengameart.org/content/racing-car-engine-sound-loops - CC-0
 * Dream Candy by Drozerix https://modarchive.org/index.php?request=view_by_moduleid&query=178565 - Public Domain
